@@ -1,245 +1,242 @@
-# Developer Tools AI API Tester
+# 🚀 DevKit – All‑In‑One Developer Toolbox
 
-This repository contains a lightweight full‑stack developer tool designed to simplify API exploration and debugging. It combines an Express backend that leverages Google Gemini AI with a rich React-based frontend that acts as an API playground.
+**DevKit** is a full‑stack, open‑source toolkit designed to help developers build, debug and prototype faster. It combines a modern React/Vite front‑end with an Express.js/MongoDB back‑end and integrates AI‑powered helpers to make everyday tasks easier.
 
-The core idea is to let developers craft arbitrary HTTP requests, examine responses, and augment their workflow with AI assistance: automatically generating JSON request bodies or producing human-friendly explanations of responses. It's essentially a mini‑Postman with AI smarts.
-
-The project is organised into two main parts:
-
-- `server/` – Express backend that interfaces with the Google GenAI SDK and exposes two tiny endpoints for body generation and response explanation.
-- `frontend/` – React + Vite app that provides a browser‑based API tester UI with modular components, theming, history management, and AI helpers.
+> _"A Swiss Army knife for developers, inside your browser."_
 
 ---
 
-## 📁 Project Structure
+## ✨ Features
+
+| Available | Tool | Description |
+|-----------|------|-------------|
+| ✅ | **API Tester** | Send authenticated requests, set headers/body, view responses, track history and get AI‑generated explanations. |
+| ✅ | **Snippet Manager** | Create, edit and organize code snippets with language tags, search, syntax colors and Monaco editor. Publish snippets publicly. |
+| ✅ | **JWT Decoder** | Inspect JSON Web Tokens (header, payload, expiration). |
+| ✅ | **AI Generators** | Auto‑generate JSON request bodies, explain API responses and create code snippets using Google Gemini/GenAI. |
+| 🔜 | **JSON Formatter** | Pretty‑print, validate and diff JSON. |
+| 🔜 | **Regex Tester** | Live regex evaluation with match highlighting and documentation. |
+| 🔜 | **Color Palette** | Generate and convert between color formats. |
+
+*Tools marked 🔜 are planned for future releases.*
+
+
+## 🗂️ Project Structure
 
 ```
-frontend/
-  ├── public/              # static assets
-  ├── src/
-  │   ├── components/      # UI pieces (ApiTester panel, editors, etc.)
-  │   ├── context/         # React contexts (theme)
-  │   └── utils/           # helper modules (aiService, apiTester, history)
-  ├── package.json
-  └── vite.config.js
-
-server/
-  ├── routes/
-  │   └── ai.js            # AI-related endpoints
-  ├── index.js             # Express entry point
-  ├── package.json
-  └── .env                 # environment variables (not committed)
+├── frontend/       # React application (Vite + JSX)
+│   ├── public/
+│   ├── src/
+│   │   ├── components/      # UI pieces (ApiTester, SnippetManager, etc.)
+│   │   ├── context/         # Auth & Theme providers
+│   │   ├── pages/           # Routes: Home, Login, Register, tools
+│   │   └── utils/           # API helpers and local state managers
+│   ├── package.json
+│   └── vite.config.js
+└── server/         # Express.js API server
+    ├── middleware/   # JWT auth, etc.
+    ├── models/       # Mongoose schemas (User, Snippet)
+    ├── routes/       # auth, snippets, ai endpoints
+    ├── index.js      # entry point
+    ├── package.json
+    └── .env          # environment variables (not checked in)
 ```
 
-> The frontend proxies `/api` requests to the backend during development (see `vite.config.js`).
 
----
+## 🛠️ Technology Stack
 
-## 🛠️ Setup Instructions
+- **Frontend:** React, Vite, React Router, Axios, Monaco Editor, Fuse.js
+- **Backend:** Node.js, Express, MongoDB (Mongoose), JWT, bcrypt, cookie‑parser
+- **AI:** Google GenAI (Gemini) via `@google/genai` (can be swapped for OpenAI)
+- **Styling:** Inline CSS with responsive layout and dark/light themes
+
+
+## 🏁 Getting Started
 
 ### Prerequisites
-- Node.js 18+ (both projects)
-- A Google Cloud API key with access to the Gemini model.
-- A MongoDB database URI (local or cloud) and a JWT secret for authentication.
 
-### Server
+- Node.js 18+ (npm included)
+- MongoDB instance (local or cloud)
+- Optional: Gemini / OpenAI API key for AI features
+
+### Clone repository
+
+```bash
+git clone https://github.com/<your-org>/devkit.git
+cd devkit
+```
+
+### Configure environment variables
+
+Create a `.env` file in `/server`:
+
+```env
+MONGO_URI=mongodb://localhost/devkit
+JWT_SECRET=supersecret123
+GEMINI_API_KEY=your_gemini_key_here   # or OPENAI_API_KEY if using OpenAI
+PORT=3000
+```
+
+### Install & run the backend
 
 ```bash
 cd server
 npm install
-# create a .env file containing:
-# GEMINI_API_KEY=<your-key>
-# MONGO_URI=<mongodb-uri>
-# JWT_SECRET=<some-secret>
-# PORT=4000 (optional)
-npm run dev
+npm run dev        # start with nodemon (port 3000 by default)
 ```
 
-### Frontend
+### Install & run the frontend
 
 ```bash
-cd frontend
+cd ../frontend
 npm install
-npm run dev
-# open http://localhost:5173 in your browser
+npm run dev        # launches Vite dev server on http://localhost:5173
 ```
 
-The React UI will let you craft arbitrary requests and view responses, with AI helpers to generate request bodies or explain returned data.
-
----
-
-## 🔌 API Endpoints
-All endpoints are prefixed with `/api/ai` on the server. When running the frontend locally, calls go to `http://localhost:5173/api/ai/...` which is proxied to `http://localhost:4000/api/ai/...`.
-
-### `POST /api/ai/generate-body`
-Generates a sample JSON request body based on a short description.
-
-- **Request**
-  ```json
-  {
-    "description": "Create a new user with name and email"
-  }
-  ```
-
-- **Response (200 OK)**
-  ```json
-  {
-    "body": "{\"name\": \"John Doe\", \"email\": \"john@example.com\"}"
-  }
-  ```
-
-- **Errors**
-  - `400` if `description` is missing.
-  - `500` on AI/Google API failure.
-
-### `POST /api/ai/explain-response`
-Returns a Markdown explanation of an HTTP response, given the original request metadata.
-
-- **Request**
-  ```json
-  {
-    "request": {
-      "method": "POST",
-      "url": "https://api.example.com/users"
-    },
-    "response": {
-      "status": 201,
-      "statusText": "Created",
-      "data": { "id": 123, "name": "Jane" }
-    }
-  }
-  ```
-
-- **Response (200 OK)**
-  ```json
-  {
-    "explanation": "# API Response Explanation\n\n## 1. Overall Meaning\nThis response indicates that a new user resource was successfully created..."
-  }
-  ```
-
-- **Errors**
-  - `400` if `response` is missing.
-  - `500` on AI/Google API failure.
+> The React app proxies `/api` requests to `http://localhost:3000` by default.
 
 
----
+## 🔌 API Reference
 
-## 🖥️ Frontend Behavior
-
-The React app (`frontend/src`) is structured to keep logic and presentation modular.
-
-### 📦 Core Frontend Modules
-
-- **`apiTester.js`** – generic HTTP client powered by Axios; manages local proxying, header normalization, JSON parsing, error handling, and request timing. It abstracts away the network details so components can remain focused on UI state.
-
-- **`aiService.js`** – a thin service layer that calls the backend AI endpoints (`/generate-body` and `/explain-response`) using the same axios instance configured for credentials.
-
-- **`historyManager.js`** – simple wrapper around `localStorage` responsible for persisting an array of past requests. Used by the history panel to allow users to re‑run or inspect previous interactions.
-
-- **React Context (`ThemeContext.jsx`)** – provides a light/dark theme toggle that components consume to adjust styling. The theme selection is also saved in `localStorage`.
-
-### 🧩 UI Components (in `src/components/ApiTester`)
-
-Each part of the request/response workflow is encapsulated in its own component:
-
-- `MethodSelector.jsx` – dropdown for choosing HTTP verbs (GET, POST, etc.).
-- `HeadersEditor.jsx` – dynamic form for adding/removing request headers.
-- `BodyEditor.jsx` – textarea for entering raw JSON body with validation and AI body generation button.
-- `AIPanel.jsx` – sidebar controls for invoking the AI helpers and displaying generated text or explanations.
-- `ResponseViewer.jsx` – formatted display of the status, headers, body, and timing of the last response. Supports raw JSON rendering.
-- `HistoryPanel.jsx` – lists saved requests from `historyManager`; clicking an entry populates the request form.
-
-The main `App.jsx` component ties everything together, maintaining the current request state and passing callbacks down to children. Styling is handled by simple CSS files (`App.css`, `index.css`) and a `theme.js` file provides common color variables.
-
-### 🎯 User Workflow
-1. **Compose a request**: select method, enter URL, add headers, and type (or auto‑generate) a JSON body.
-2. **Send the request**: click the send button; the response viewer updates with status, time, and data.
-3. **Use AI helpers**: either generate a body from plain text or explain the received response in Markdown.
-4. **Review history**: revisit previous requests via the history panel and replay them instantly.
-
-This design keeps the UI responsive and stateful without relying on external libraries like Redux—everything is managed via React hooks and context.
-
----
-
-## 🔐 User Authentication & Snippet Management
-
-The latest upgrade introduces a simple account system and a personal snippet library:
-
-- **Register / Login** – users create an account with email/password and receive an HTTP-only JWT cookie.
-- **Session persistence** – `AuthContext` fetches `/api/auth/me` on load to restore the user state.
-- **Logout** – clears the token and resets the UI.
-
-Once authenticated, the sidebar includes a **Snippet Manager** where you can:
-
-1. Create new code snippets with a title, language, tags, and privacy flag.
-2. Edit or delete your own snippets.
-3. Browse a public feed of shared snippets contributed by other users.
-4. Click a snippet to load its code into the editor for experimentation.
-
-This turns the tool into a lightweight collaborative playground for storing and reusing reusable request bodies or code samples.
-
-## 🔌 API Endpoints
-
-All endpoints are prefixed with `/api` on the server. When running the frontend locally, calls go to `http://localhost:5173/api/...` which is proxied to `http://localhost:4000/api/...`.
+All endpoints are prefixed with `/api` when called from the frontend. Authentication is handled via an httpOnly JWT cookie; you do not need to manually attach tokens when using the provided client utilities.
 
 ### Authentication
 
-| Endpoint               | Method | Description                                   |
-|------------------------|--------|-----------------------------------------------|
-| `POST /api/auth/register` | POST   | Create a new user (username, email, password) |
-| `POST /api/auth/login`    | POST   | Log in and set JWT cookie                     |
-| `POST /api/auth/logout`   | POST   | Clear auth cookie                             |
-| `GET /api/auth/me`        | GET    | Get current user info (requires auth)         |
+| Method | Endpoint             | Description               | Request Body                             | Response Example |
+|--------|----------------------|---------------------------|-------------------------------------------|------------------|
+| POST   | `/api/auth/register` | Register a new account    | `{ "username","email","password" }`       | `201 { "message": "User created successfully" }` |
+| POST   | `/api/auth/login`    | Log in and set cookie     | `{ "email","password" }`                  | `200 { "message": "...", "user": {...} }` |
+| POST   | `/api/auth/logout`   | Clear authentication      | _none_                                    | `200 { "message": "Logged out successfully" }` |
+| GET    | `/api/auth/me`       | Get current user          | _none_ (cookie sent automatically)        | `200 { "user": { id, username, email } }` |
+
+> The `login` route sets a cookie named `token` that is sent on subsequent `/api` calls.
+
+
 
 ### Snippets
 
-| Endpoint                   | Method | Description                                           |
-|----------------------------|--------|-------------------------------------------------------|
-| `GET /api/snippets`        | GET    | List snippets belonging to the authenticated user     |
-| `GET /api/snippets/public` | GET    | List snippets marked public (open vote)              |
-| `GET /api/snippets/:id`    | GET    | Get a single snippet (auth required)                 |
-| `POST /api/snippets`       | POST   | Create a new snippet                                  |
-| `PUT /api/snippets/:id`    | PUT    | Update an existing snippet (owner only)              |
-| `DELETE /api/snippets/:id` | DELETE | Delete an existing snippet (owner only)              |
+All snippet routes require authentication.
 
-### AI Helpers
+| Method | Endpoint            | Description                        | Body                                               | Notes |
+|--------|---------------------|------------------------------------|----------------------------------------------------|-------|
+| GET    | `/api/snippets`     | List user's snippets              | _none_                                            | returns array |
+| GET    | `/api/snippets/public` | List public snippets           | _none_                                            | anyone can access |
+| GET    | `/api/snippets/:id` | Retrieve single snippet           | _none_                                            | |
+| POST   | `/api/snippets`     | Create new snippet                | `{ title, code, language?, tags?, isPublic? }`    | returns created doc |
+| PUT    | `/api/snippets/:id` | Update existing snippet           | same as POST body                                 | user must own snippet |
+| DELETE | `/api/snippets/:id` | Delete snippet                    | _none_                                            | user must own snippet |
 
-[…] (original explanation remains unchanged)
-
-## 🧪 Examples
-
-Below are some sample interactions you can try once the app is running:
-
-1. **Register and login** – click the register link, create an account, then sign in to unlock snippet functionality.
-2. **Save a snippet** – after sending a request, open the Snippet Manager and click “Save as snippet”, give it a title and optionally mark it public.
-3. **Load a public snippet** – browse the public feed to copy other people’s examples into your request body.
-
----
-
-## ⚙️ Environment Variables
-
-Create a `server/.env` file with:
-
-```
-GEMINI_API_KEY=your_google_api_key_here
-PORT=4000             # optional
+```bash
+# create
+curl -X POST http://localhost:3000/api/snippets \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"title":"Example","code":"console.log(1);","tags":["js"]}'
 ```
 
-No frontend-specific environment is required since it proxies when running locally.
+
+### AI & Utilities
+
+These endpoints power the API tester and snippet generator features.
+
+| Method | Endpoint                   | Description                                  | Request Body                                    |
+|--------|----------------------------|----------------------------------------------|------------------------------------------------|
+| POST   | `/api/ai/generate-body`    | Generate JSON request body from description  | `{ description: "create user payload" }`      |
+| POST   | `/api/ai/explain-response` | Return markdown explanation of a response    | `{ request, response }`                        |
+| POST   | `/api/ai/generate-snippet` | Generate code snippet from prompt           | `{ prompt, language }`                         |
+
+Example:
+
+```bash
+curl -X POST http://localhost:3000/api/ai/explain-response \
+  -H "Content-Type: application/json" \
+  -d '{"request":{ "method":"GET","url":"https://..."},"response":{ "status":200,"data":{...}}}'
+```
+
+Response:
+
+```json
+{ "explanation": "# API Response Explanation\n\n## 1. Overall Meaning\n..." }
+```
 
 ---
 
-## 🚀 Deployment Notes
+## 🎯 Frontend Walkthrough
 
-- You may deploy the backend to any Node‑friendly host (Heroku, Vercel serverless functions, etc.).
-- The frontend can be built with `npm run build` and served as static assets; ensure the `/api` proxy or URL is adjusted for production.
+The React application serves as both the UI and a thin client for the backend API.
+
+### Navigation
+
+- **Home** – marketing landing page with links to tools.
+- **API Tester** – build and send HTTP requests across domains.
+- **Snippet Manager** – CRUD interface backed by Monaco editor.
+- **Login/Register** – user authentication.
+- Footer and theme toggle are global components.
+
+### API Tester
+
+Features:
+
+- Enter URL, method, headers, JSON body.
+- Click **Send** to issue request; if the URL points to `localhost:3000` it is proxied through the server, allowing cookies to be included and AI analysis to occur.
+- History panel retains up to 50 past requests.
+- AI panel can generate request bodies or explain server responses (powered by `/api/ai` routes).
+
+
+### Snippet Manager
+
+- Sidebar displays user's snippets with search and filters.
+- Create/edit snippets with Monaco editor, specify language, tags, and visibility.
+- Public snippets are viewable by anyone via `/api/snippets/public`.
+- AI code generator integrates with the server (`/api/ai/generate-snippet`).
+
+### Authentication Flow
+
+- Register with username, email and password.
+- Upon login, a JWT cookie is stored; `AuthContext` fetches `/api/auth/me` to populate user state.
+- Logout clears cookie and resets context.
+
+### Utilities
+
+- `authService.js`, `snippetService.js`, `apiTester.js`, and `aiService.js` encapsulate HTTP interactions.
+- `historyManager.js` persists API Tester logs in `localStorage`.
 
 ---
 
-## 📝 License
+## 💡 Development Notes
 
-[MIT](LICENSE) (or specify appropriate license)
+- Themes are toggled via `ThemeContext` and inline style objects.
+- All components use functional React hooks.
+- Server uses `authMiddleware` to guard private routes.
+- Snippet schema: `user`, `title`, `code`, `language`, `tags`, `isPublic`.
+- AI routes use Google Gemini; swapable by changing environment key and minor logic.
 
 ---
 
-Feel free to expand on this README as the project grows!
+## 🧪 Running Tests & Linting
+
+_(Add commands or notes here if tests/linting exist — currently none.)_
+
+---
+
+## 📦 Deployment
+
+- Build frontend with `npm run build` (Vite).
+- Serve static files from `/server` or deploy separately.
+- Ensure environment variables are set in production.
+- MongoDB Atlas recommended for hosted database.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo.
+2. Create a branch for your feature/fix.
+3. Open a PR with a clear description.
+4. Make sure new features are documented here.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See `LICENSE` file for details.

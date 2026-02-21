@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ApiTester from './components/ApiTester'
 import SnippetManager from './components/SnippetManager'
+import HomePage from './pages/HomePage'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -16,7 +17,8 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/" element={
+      <Route path="/" element={<HomePage />} />
+      <Route path="/api-tester" element={
         <ProtectedRoute>
           <ApiTester />
         </ProtectedRoute>
