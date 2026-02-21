@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { generateBody, explainResponse } from '../../utils/aiService'
 import ReactMarkdown from 'react-markdown'
+import { generateBody, explainResponse } from '../../utils/aiService'
 
 export default function AIPanel({ request, response, onBodyGenerated }) {
   const [description, setDescription] = useState('')
@@ -34,21 +34,22 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
 
   const toggleMinimize = () => setPanelState(s => s === 'minimized' ? 'normal' : 'minimized')
   const toggleMaximize = () => setPanelState(s => s === 'maximized' ? 'normal' : 'maximized')
+  const isMaximized = panelState === 'maximized'
 
   return (
     <div style={{
       ...styles.container,
-      ...(panelState === 'maximized' ? styles.maximized : {})
+      ...(isMaximized ? styles.maximized : {})
     }}>
       {/* Header */}
       <div style={styles.header}>
         <span style={styles.title}>✦ AI Assistant</span>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button onClick={toggleMaximize} style={styles.toggleBtn} title={panelState === 'maximized' ? 'Restore' : 'Maximize'}>
-            {panelState === 'maximized' ? '⊡ Restore' : '⊞ Maximize'}
+          <button onClick={toggleMaximize} style={styles.toggleBtn}>
+            {isMaximized ? '⊡ Restore' : '⊞ Maximize'}
           </button>
-          <div style={styles.divider} />
-          <button onClick={toggleMinimize} style={styles.toggleBtn} title={panelState === 'minimized' ? 'Expand' : 'Minimize'}>
+          <div style={styles.headerDivider} />
+          <button onClick={toggleMinimize} style={styles.toggleBtn}>
             {panelState === 'minimized' ? '▲ Expand' : '▼ Minimize'}
           </button>
         </div>
@@ -57,7 +58,7 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
       {panelState !== 'minimized' && (
         <div style={{
           ...styles.content,
-          ...(panelState === 'maximized' ? styles.contentMaximized : {})
+          ...(isMaximized ? styles.contentMaximized : {})
         }}>
           {/* Generate Body */}
           <div style={styles.section}>
@@ -73,7 +74,11 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
               <button
                 onClick={() => handle('generate')}
                 disabled={loading || !description}
-                style={{ ...styles.btn, opacity: loading || !description ? 0.5 : 1, cursor: loading || !description ? 'not-allowed' : 'pointer' }}>
+                style={{
+                  ...styles.btn,
+                  opacity: loading || !description ? 0.5 : 1,
+                  cursor: loading || !description ? 'not-allowed' : 'pointer'
+                }}>
                 {loading && activeFeature === 'generate' ? '⏳ Generating...' : 'Generate'}
               </button>
             </div>
@@ -85,7 +90,11 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
               <button
                 onClick={() => handle('explain')}
                 disabled={loading}
-                style={{ ...styles.actionBtn, opacity: loading ? 0.5 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
+                style={{
+                  ...styles.actionBtn,
+                  opacity: loading ? 0.5 : 1,
+                  cursor: loading ? 'not-allowed' : 'pointer'
+                }}>
                 {loading && activeFeature === 'explain' ? '⏳ Explaining...' : '💡 Explain Response'}
               </button>
             </div>
@@ -95,7 +104,7 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
           {output && (
             <div style={{
               ...styles.output,
-              ...(panelState === 'maximized' ? styles.outputMaximized : {})
+              ...(isMaximized ? styles.outputMaximized : {})
             }}>
               <div style={styles.outputHeader}>
                 <span style={styles.outputLabel}>
@@ -108,7 +117,10 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
                 </button>
               </div>
 
-              <div style={styles.outputBody}>
+              <div style={{
+                ...styles.outputBody,
+                ...(isMaximized ? styles.outputBodyMaximized : {})
+              }}>
                 {activeFeature === 'generate' ? (
                   <pre style={styles.outputText}>{output}</pre>
                 ) : (
@@ -119,9 +131,12 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
                         h2: ({ children }) => <h2 style={styles.mdH2}>{children}</h2>,
                         h3: ({ children }) => <h3 style={styles.mdH3}>{children}</h3>,
                         p: ({ children }) => <p style={styles.mdP}>{children}</p>,
-                        code: ({ inline, children }) => inline
-                          ? <code style={styles.mdInlineCode}>{children}</code>
-                          : <pre style={styles.mdCodeBlock}><code>{children}</code></pre>,
+                        code: ({ node, className, children }) => {
+                          const isInline = !className && !String(children).includes('\n')
+                          return isInline
+                            ? <code style={styles.mdInlineCode}>{children}</code>
+                            : <pre style={styles.mdCodeBlock}><code>{children}</code></pre>
+                        },
                         ul: ({ children }) => <ul style={styles.mdUl}>{children}</ul>,
                         ol: ({ children }) => <ol style={styles.mdOl}>{children}</ol>,
                         li: ({ children }) => <li style={styles.mdLi}>{children}</li>,
@@ -182,6 +197,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexShrink: 0,
   },
   title: {
     fontSize: '11px',
@@ -200,9 +216,8 @@ const styles = {
     letterSpacing: '0.3px',
     padding: '2px 6px',
     borderRadius: '4px',
-    transition: 'color 0.15s',
   },
-  divider: {
+  headerDivider: {
     width: '1px',
     height: '12px',
     background: '#1e1e30',
@@ -214,10 +229,13 @@ const styles = {
   contentMaximized: {
     flex: 1,
     overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
   },
   section: {
     padding: '12px 20px',
     borderBottom: '1px solid #1e1e30',
+    flexShrink: 0,
   },
   sectionTitle: {
     fontSize: '11px',
@@ -257,6 +275,7 @@ const styles = {
     padding: '12px 20px',
     borderBottom: '1px solid #1e1e30',
     alignItems: 'center',
+    flexShrink: 0,
   },
   actionBtn: {
     background: '#11111c',
@@ -273,12 +292,15 @@ const styles = {
     border: '1px solid #1e1e30',
     borderRadius: '6px',
     overflow: 'hidden',
-    maxHeight: '200px',
+    maxHeight: '220px',
+    display: 'flex',
+    flexDirection: 'column',
   },
   outputMaximized: {
-    maxHeight: 'calc(100vh - 180px)',
-    margin: '12px 20px',
     flex: 1,
+    maxHeight: 'none',
+    margin: '12px 20px',
+    overflow: 'hidden',
   },
   outputHeader: {
     display: 'flex',
@@ -287,6 +309,7 @@ const styles = {
     padding: '8px 12px',
     borderBottom: '1px solid #1e1e30',
     background: '#0d0d14',
+    flexShrink: 0,
   },
   outputLabel: {
     fontSize: '10px',
@@ -303,32 +326,24 @@ const styles = {
     cursor: 'pointer',
     fontFamily: 'inherit',
   },
+  outputBody: {
+    overflowY: 'auto',
+    maxHeight: '180px',
+    padding: '12px',
+  },
+  outputBodyMaximized: {
+    maxHeight: 'none',
+    flex: 1,
+    height: 'calc(100vh - 200px)',
+    overflowY: 'auto',
+  },
   outputText: {
     color: '#ccc',
     fontSize: '12px',
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
     fontFamily: "'JetBrains Mono', monospace",
-    padding: '12px',
     margin: 0,
-    overflowY: 'auto',
-    maxHeight: 'inherit',
-  },
-  emptyState: {
-    padding: '20px',
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    color: '#333',
-    fontSize: '11px',
-    textAlign: 'center',
-    lineHeight: '1.6',
-  },
-  outputBody: {
-    overflowY: 'auto',
-    maxHeight: '180px',
-    padding: '12px',
   },
   markdown: {
     color: '#ccc',
@@ -399,4 +414,15 @@ const styles = {
     borderTop: '1px solid #1e1e30',
     margin: '10px 0',
   },
+  emptyState: {
+    padding: '20px',
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    color: '#333',
+    fontSize: '11px',
+    textAlign: 'center',
+    lineHeight: '1.6',
+  }
 }

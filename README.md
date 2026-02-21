@@ -40,6 +40,7 @@ server/
 ### Prerequisites
 - Node.js 18+ (both projects)
 - A Google Cloud API key with access to the Gemini model.
+- A MongoDB database URI (local or cloud) and a JWT secret for authentication.
 
 ### Server
 
@@ -48,6 +49,8 @@ cd server
 npm install
 # create a .env file containing:
 # GEMINI_API_KEY=<your-key>
+# MONGO_URI=<mongodb-uri>
+# JWT_SECRET=<some-secret>
 # PORT=4000 (optional)
 npm run dev
 ```
@@ -158,20 +161,58 @@ This design keeps the UI responsive and stateful without relying on external lib
 
 ---
 
+## 🔐 User Authentication & Snippet Management
+
+The latest upgrade introduces a simple account system and a personal snippet library:
+
+- **Register / Login** – users create an account with email/password and receive an HTTP-only JWT cookie.
+- **Session persistence** – `AuthContext` fetches `/api/auth/me` on load to restore the user state.
+- **Logout** – clears the token and resets the UI.
+
+Once authenticated, the sidebar includes a **Snippet Manager** where you can:
+
+1. Create new code snippets with a title, language, tags, and privacy flag.
+2. Edit or delete your own snippets.
+3. Browse a public feed of shared snippets contributed by other users.
+4. Click a snippet to load its code into the editor for experimentation.
+
+This turns the tool into a lightweight collaborative playground for storing and reusing reusable request bodies or code samples.
+
+## 🔌 API Endpoints
+
+All endpoints are prefixed with `/api` on the server. When running the frontend locally, calls go to `http://localhost:5173/api/...` which is proxied to `http://localhost:4000/api/...`.
+
+### Authentication
+
+| Endpoint               | Method | Description                                   |
+|------------------------|--------|-----------------------------------------------|
+| `POST /api/auth/register` | POST   | Create a new user (username, email, password) |
+| `POST /api/auth/login`    | POST   | Log in and set JWT cookie                     |
+| `POST /api/auth/logout`   | POST   | Clear auth cookie                             |
+| `GET /api/auth/me`        | GET    | Get current user info (requires auth)         |
+
+### Snippets
+
+| Endpoint                   | Method | Description                                           |
+|----------------------------|--------|-------------------------------------------------------|
+| `GET /api/snippets`        | GET    | List snippets belonging to the authenticated user     |
+| `GET /api/snippets/public` | GET    | List snippets marked public (open vote)              |
+| `GET /api/snippets/:id`    | GET    | Get a single snippet (auth required)                 |
+| `POST /api/snippets`       | POST   | Create a new snippet                                  |
+| `PUT /api/snippets/:id`    | PUT    | Update an existing snippet (owner only)              |
+| `DELETE /api/snippets/:id` | DELETE | Delete an existing snippet (owner only)              |
+
+### AI Helpers
+
+[…] (original explanation remains unchanged)
+
 ## 🧪 Examples
 
 Below are some sample interactions you can try once the app is running:
 
-1. **Generate a request body**
-   - Type `Create a product with name, price, and inStock flag` in the description field
-   - Click "Generate Body" to receive JSON you can drop into the body editor.
-
-2. **Send a test request**
-   - Method: `GET`, URL: `https://jsonplaceholder.typicode.com/posts/1`
-   - Click "Send" – you should see a 200 response with post data.
-
-3. **Explain a response**
-   - After sending any request, click "Explain Response" to get a formatted AI breakdown.
+1. **Register and login** – click the register link, create an account, then sign in to unlock snippet functionality.
+2. **Save a snippet** – after sending a request, open the Snippet Manager and click “Save as snippet”, give it a title and optionally mark it public.
+3. **Load a public snippet** – browse the public feed to copy other people’s examples into your request body.
 
 ---
 

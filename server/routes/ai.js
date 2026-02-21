@@ -96,4 +96,25 @@ Rules:
   }
 });
 
+router.post('/generate-snippet', async (req, res) => {
+  const { prompt, language } = req.body
+  if (!prompt) return res.status(400).json({ error: 'Prompt is required' })
+
+  try {
+    const aiPrompt = `Generate a clean, well-commented ${language} code snippet for: "${prompt}".
+    Return ONLY the code itself, no explanation, no markdown, no code blocks. Just raw code.`
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: aiPrompt
+    })
+
+    const code = response.text.trim().replace(/```[\w]*\n?|```/g, '').trim()
+    res.json({ code })
+  } catch (err) {
+    console.error('Gemini error:', err)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 module.exports = router;

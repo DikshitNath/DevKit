@@ -10,13 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@tailwindcss/vite": "^4.2.0",
     "@uiw/react-json-view": "^2.0.0-alpha.41",
     "axios": "^1.13.5",
+    "fuse.js": "^7.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-json-pretty": "^2.2.0",
     "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.13.0",
     "tailwindcss": "^4.2.0"
   },
   "devDependencies": {
