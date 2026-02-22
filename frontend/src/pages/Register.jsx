@@ -170,7 +170,7 @@ export default function Register() {
                 <input
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  placeholder="johndoe"
+                  placeholder="username"
                   style={inputStyle}
                   onFocus={handleFocus}
                   onBlur={e => handleBlur(e, t.border)}

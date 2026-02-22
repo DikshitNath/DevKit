@@ -1,7 +1,7 @@
 import JSONPretty from 'react-json-pretty'
 import { useState } from 'react'
 
-export default function ResponseViewer({ response }) {
+export default function ResponseViewer({ t, response }) {
   const [view, setView] = useState('pretty')
   const [copied, setCopied] = useState(false)
 
@@ -15,26 +15,36 @@ export default function ResponseViewer({ response }) {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Toolbar */}
-      <div style={styles.toolbar}>
-        <div style={styles.viewTabs}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 20px', borderBottom: `1px solid ${t.border}`, background: t.toolbarBg, transition: 'background 0.3s ease, border-color 0.3s ease' }}>
+        <div style={{ display: 'flex', gap: '4px' }}>
           {['pretty', 'raw'].map(v => (
             <button
               key={v}
               onClick={() => setView(v)}
-              style={{ ...styles.viewTab, ...(view === v ? styles.viewTabActive : {}) }}>
+              style={{
+                background: view === v ? t.card : 'transparent',
+                border: `1px solid ${view === v ? t.border : 'transparent'}`,
+                color: view === v ? '#a78bfa' : t.textMuted,
+                fontSize: '11px',
+                padding: '4px 10px',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontFamily: "'IBM Plex Mono', monospace",
+                transition: 'all 0.15s',
+              }}>
               {v.charAt(0).toUpperCase() + v.slice(1)}
             </button>
           ))}
         </div>
-        <button onClick={copy} style={styles.copyBtn}>
+        <button onClick={copy} style={{ background: 'transparent', border: `1px solid ${t.border}`, color: copied ? '#4ade80' : t.textMuted, fontSize: '11px', padding: '4px 10px', borderRadius: '5px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", transition: 'all 0.15s' }}>
           {copied ? '✓ Copied' : '⎘ Copy'}
         </button>
       </div>
 
       {/* Content */}
-      <div style={styles.content}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: t.contentBg, transition: 'background 0.3s ease' }}>
         {view === 'pretty' && typeof response.data === 'object' ? (
           <JSONPretty
             data={response.data}
@@ -46,7 +56,7 @@ export default function ResponseViewer({ response }) {
             booleanStyle="color:#60a5fa"
           />
         ) : (
-          <pre style={styles.raw}>
+          <pre style={{ color: t.textMuted, fontSize: '12px', lineHeight: '1.7', whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontFamily: "'IBM Plex Mono', monospace" }}>
             {typeof response.data === 'object'
               ? JSON.stringify(response.data, null, 2)
               : String(response.data)}
@@ -55,66 +65,4 @@ export default function ResponseViewer({ response }) {
       </div>
     </div>
   )
-}
-
-const styles = {
-  container: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  toolbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '6px 20px',
-    borderBottom: '1px solid #1e1e30',
-    background: '#0a0a12',
-  },
-  viewTabs: {
-    display: 'flex',
-    gap: '4px',
-  },
-  viewTab: {
-    background: 'transparent',
-    border: '1px solid transparent',
-    color: '#555',
-    fontSize: '11px',
-    padding: '4px 10px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    transition: 'all 0.15s',
-  },
-  viewTabActive: {
-    background: '#1e1e30',
-    border: '1px solid #2e2e45',
-    color: '#a78bfa',
-  },
-  copyBtn: {
-    background: 'transparent',
-    border: '1px solid #1e1e30',
-    color: '#555',
-    fontSize: '11px',
-    padding: '4px 10px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    transition: 'all 0.15s',
-  },
-  content: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '16px 20px',
-    background: '#0a0a12',
-  },
-  raw: {
-    color: '#888',
-    fontSize: '12px',
-    lineHeight: '1.7',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-all',
-    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-  }
 }

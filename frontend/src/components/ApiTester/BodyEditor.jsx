@@ -1,4 +1,4 @@
-export default function BodyEditor({ body, setBody }) {
+export default function BodyEditor({ t, body, setBody }) {
   const format = () => {
     try {
       const formatted = JSON.stringify(JSON.parse(body), null, 2)
@@ -9,10 +9,10 @@ export default function BodyEditor({ body, setBody }) {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.topBar}>
-        <span style={styles.label}>JSON</span>
-        <button onClick={format} style={styles.formatBtn} title="Format JSON">
+    <div style={{ border: `1px solid ${t.border}`, borderRadius: '8px', overflow: 'hidden', transition: 'border-color 0.3s ease' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 12px', background: t.sectionBg, borderBottom: `1px solid ${t.border}`, transition: 'background 0.3s ease' }}>
+        <span style={{ fontSize: '10px', letterSpacing: '1.5px', color: t.textFaint, fontWeight: '700', fontFamily: "'IBM Plex Mono', monospace" }}>JSON</span>
+        <button onClick={format} style={{ background: 'transparent', border: 'none', color: '#6366f1', fontSize: '11px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.3px' }} title="Format JSON">
           ⌥ Format
         </button>
       </div>
@@ -21,53 +21,22 @@ export default function BodyEditor({ body, setBody }) {
         onChange={(e) => setBody(e.target.value)}
         placeholder={'{\n  "key": "value"\n}'}
         rows={6}
-        style={styles.textarea}
         spellCheck={false}
+        style={{
+          width: '100%',
+          background: t.aiInputBg,
+          border: 'none',
+          outline: 'none',
+          color: '#a78bfa',
+          fontSize: '12px',
+          padding: '12px',
+          fontFamily: "'IBM Plex Mono', monospace",
+          resize: 'vertical',
+          lineHeight: '1.6',
+          minHeight: '120px',
+          transition: 'background 0.3s ease',
+        }}
       />
     </div>
   )
-}
-
-const styles = {
-  container: {
-    border: '1px solid #1e1e30',
-    borderRadius: '6px',
-    overflow: 'hidden',
-  },
-  topBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '6px 12px',
-    background: '#0d0d14',
-    borderBottom: '1px solid #1e1e30',
-  },
-  label: {
-    fontSize: '11px',
-    letterSpacing: '1.5px',
-    color: '#6666aa',
-    fontWeight: '700',
-  },
-  formatBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: '#6366f1',
-    fontSize: '11px',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    letterSpacing: '0.3px',
-  },
-  textarea: {
-    width: '100%',
-    background: '#0a0a12',
-    border: 'none',
-    outline: 'none',
-    color: '#a78bfa',
-    fontSize: '12px',
-    padding: '12px',
-    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-    resize: 'vertical',
-    lineHeight: '1.6',
-    minHeight: '120px',
-  }
 }

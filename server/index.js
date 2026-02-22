@@ -2,7 +2,9 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
+const session = require('express-session')
 require('dotenv').config()
+const passport = require('./utils/passport')
 
 const authRoutes = require('./routes/auth')
 const snippetRoutes = require('./routes/snippets')
@@ -10,12 +12,16 @@ const aiRoutes = require('./routes/ai')
 
 const app = express()
 
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true
-}))
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }))
 app.use(express.json())
 app.use(cookieParser())
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: false,
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.use('/api/auth', authRoutes)
 app.use('/api/snippets', snippetRoutes)

@@ -13,6 +13,60 @@ const defaultSnippet = {
   isPublic: false,
 }
 
+export const darkTheme = {
+  page: '#080810',
+  sidebar: '#0a0a16',
+  list: '#0a0a16',
+  editor: '#08080f',
+  editorBar: 'rgba(8,8,16,0.9)',
+  border: '#1e1e30',
+  borderSubtle: '#13131e',
+  text: '#e2e2f0',
+  textMuted: '#4a4a7a',
+  textFaint: '#2a2a45',
+  textDim: '#3a3a5c',
+  dot: '#1e1e35',
+  cardHover: 'rgba(255,255,255,0.02)',
+  cardActive: 'rgba(99,102,241,0.08)',
+  tagBg: 'rgba(99,102,241,0.08)',
+  tagBorder: 'rgba(99,102,241,0.2)',
+  tagColor: '#a78bfa',
+  sectionLabel: '#2a2a45',
+  navItemActive: 'rgba(99,102,241,0.1)',
+  dropdownBg: '#0c0c18',
+  statusBar: '#06060e',
+  toggleBg: '#16162a',
+  toggleBorder: '#2a2a45',
+  toggleShadow: '0 4px 20px rgba(0,0,0,0.4)',
+}
+
+export const lightTheme = {
+  page: '#f0f0f8',
+  sidebar: '#f8f8fc',
+  list: '#f4f4fb',
+  editor: '#ffffff',
+  editorBar: 'rgba(248,248,252,0.95)',
+  border: '#e0e0ee',
+  borderSubtle: '#eaeaf4',
+  text: '#1a1a2e',
+  textMuted: '#666688',
+  textFaint: '#aaaacc',
+  textDim: '#888899',
+  dot: '#d8d8ee',
+  cardHover: 'rgba(0,0,0,0.015)',
+  cardActive: 'rgba(99,102,241,0.06)',
+  tagBg: 'rgba(99,102,241,0.06)',
+  tagBorder: 'rgba(99,102,241,0.18)',
+  tagColor: '#6366f1',
+  sectionLabel: '#aaaacc',
+  navItemActive: 'rgba(99,102,241,0.08)',
+  dropdownBg: '#ffffff',
+  statusBar: '#f0f0f8',
+  toggleBg: '#ffffff',
+  toggleBorder: '#e0e0ee',
+  toggleShadow: '0 4px 20px rgba(0,0,0,0.1)',
+}
+
 export default function SnippetManager() {
   const [snippets, setSnippets] = useState([])
   const [selected, setSelected] = useState(null)
@@ -21,7 +75,9 @@ export default function SnippetManager() {
   const [filter, setFilter] = useState('all')
   const [filterTag, setFilterTag] = useState('')
   const [filterLang, setFilterLang] = useState('')
+  const [isDark, setIsDark] = useState(true)
   const { user, logout } = useAuth()
+  const t = isDark ? darkTheme : lightTheme
 
   useEffect(() => { fetchSnippets() }, [])
 
@@ -36,9 +92,7 @@ export default function SnippetManager() {
     }
   }
 
-  const handleNew = () => {
-    setSelected({ ...defaultSnippet, isNew: true })
-  }
+  const handleNew = () => setSelected({ ...defaultSnippet, isNew: true })
 
   const handleSave = async (snippetData) => {
     setSaving(true)
@@ -82,40 +136,76 @@ export default function SnippetManager() {
   })
 
   return (
-    <div style={styles.root}>
+    <div style={{ ...styles.root, background: t.page, color: t.text }}>
+
+      {/* Dot grid */}
+      <div style={{
+        ...styles.dotGrid,
+        backgroundImage: `radial-gradient(circle, ${t.dot} 1px, transparent 1px)`,
+      }} />
+      {/* Glow orbs — dark only */}
+      {isDark && (
+        <>
+          <div style={styles.orb1} />
+          <div style={styles.orb2} />
+        </>
+      )}
+
       <SnippetSidebar
-        user={user}
-        filter={filter}
-        filterTag={filterTag}
-        filterLang={filterLang}
-        allTags={allTags}
-        allLangs={allLangs}
-        onFilter={setFilter}
-        onFilterTag={setFilterTag}
-        onFilterLang={setFilterLang}
-        onNew={handleNew}
-        onLogout={logout}
+        t={t} isDark={isDark}
+        user={user} filter={filter} filterTag={filterTag} filterLang={filterLang}
+        allTags={allTags} allLangs={allLangs}
+        onFilter={setFilter} onFilterTag={setFilterTag} onFilterLang={setFilterLang}
+        onNew={handleNew} onLogout={logout}
       />
       <SnippetList
-        snippets={filteredSnippets}
-        selected={selected}
-        loading={loading}
-        onSelect={setSelected}
-        onNew={handleNew}
+        t={t}
+        snippets={filteredSnippets} selected={selected} loading={loading}
+        onSelect={setSelected} onNew={handleNew}
       />
       <SnippetEditor
-        snippet={selected}
-        saving={saving}
-        onSave={handleSave}
-        onDelete={handleDelete}
+        t={t} isDark={isDark}
+        snippet={selected} saving={saving}
+        onSave={handleSave} onDelete={handleDelete}
       />
+
+      {/* Floating theme toggle */}
+      <button
+        onClick={() => setIsDark(d => !d)}
+        title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        style={{
+          position: 'fixed',
+          bottom: '28px',
+          right: '28px',
+          width: '44px',
+          height: '44px',
+          borderRadius: '50%',
+          background: t.toggleBg,
+          border: `1px solid ${t.toggleBorder}`,
+          boxShadow: `${t.toggleShadow}, 0 0 0 1px ${t.toggleBorder}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 999,
+          fontSize: '19px',
+          transition: 'all 0.3s ease',
+          backdropFilter: 'blur(8px)',
+        }}>
+        {isDark ? '☀️' : '🌙'}
+      </button>
+
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #2a2a3d; border-radius: 4px; }
-        select option { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: ${isDark ? '#1e1e30' : '#d0d0e8'}; border-radius: 4px; }
+        select option { background: ${isDark ? '#0c0c18' : '#ffffff'}; color: ${isDark ? '#e2e2f0' : '#1a1a2e'}; }
+        input::placeholder { color: ${isDark ? '#2a2a45' : '#aaaacc'}; }
+        textarea::placeholder { color: ${isDark ? '#2a2a45' : '#aaaacc'}; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.05)} }
       `}</style>
     </div>
   )
@@ -125,9 +215,42 @@ const styles = {
   root: {
     display: 'flex',
     height: '100vh',
-    background: '#0f0f17',
-    color: '#e2e2f0',
-    fontFamily: "'IBM Plex Sans', sans-serif",
+    fontFamily: "'Syne', sans-serif",
     overflow: 'hidden',
-  }
+    position: 'relative',
+    transition: 'background 0.3s ease, color 0.3s ease',
+  },
+  dotGrid: {
+    position: 'fixed',
+    inset: 0,
+    backgroundSize: '28px 28px',
+    opacity: 0.55,
+    pointerEvents: 'none',
+    zIndex: 0,
+    transition: 'background-image 0.3s ease',
+  },
+  orb1: {
+    position: 'fixed',
+    top: '-20%',
+    right: '-10%',
+    width: '600px',
+    height: '600px',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)',
+    pointerEvents: 'none',
+    animation: 'pulse 8s ease-in-out infinite',
+    zIndex: 0,
+  },
+  orb2: {
+    position: 'fixed',
+    bottom: '-20%',
+    left: '20%',
+    width: '500px',
+    height: '500px',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)',
+    pointerEvents: 'none',
+    animation: 'pulse 10s ease-in-out infinite 2s',
+    zIndex: 0,
+  },
 }

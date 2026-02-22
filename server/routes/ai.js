@@ -117,4 +117,44 @@ router.post('/generate-snippet', async (req, res) => {
   }
 })
 
+router.post('/explain-json', async (req, res) => {
+  const { json } = req.body
+  if (!json) return res.status(400).json({ error: 'JSON is required' })
+  try {
+    const prompt = `Analyze this JSON and explain it in simple terms:
+
+${json}
+
+Explain:
+1. What this JSON represents overall
+2. The structure and key fields
+3. Any patterns or notable things about the data
+
+Keep it concise and developer-friendly. Use markdown formatting.`
+
+    const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt })
+    res.json({ explanation: response.text })
+  } catch (err) {
+    console.error('Gemini error:', err)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.post('/generate-json', async (req, res) => {
+  const { description } = req.body
+  if (!description) return res.status(400).json({ error: 'Description is required' })
+  try {
+    const prompt = `Generate a JSON object for: "${description}".
+Return ONLY valid JSON, no explanation, no markdown, no code blocks. Just raw JSON.`
+
+    const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt })
+    const clean = response.text.trim().replace(/```json|```/g, '').trim()
+    JSON.parse(clean)
+    res.json({ json: clean })
+  } catch (err) {
+    console.error('Gemini error:', err)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 module.exports = router;

@@ -2,29 +2,14 @@ import { useState } from 'react'
 import Fuse from 'fuse.js'
 
 const LANG_COLORS = {
-  javascript: '#f7df1e',
-  typescript: '#3178c6',
-  python: '#3572A5',
-  java: '#b07219',
-  cpp: '#f34b7d',
-  css: '#563d7c',
-  html: '#e34c26',
-  json: '#40d080',
-  bash: '#89e051',
-  sql: '#e38c00',
+  javascript: '#f7df1e', typescript: '#3178c6', python: '#3572A5',
+  java: '#b07219', cpp: '#f34b7d', css: '#563d7c', html: '#e34c26',
+  json: '#40d080', bash: '#89e051', sql: '#e38c00',
 }
 
 const LANG_SHORT = {
-  javascript: 'JS',
-  typescript: 'TS',
-  python: 'PY',
-  java: 'JV',
-  cpp: 'C+',
-  css: 'CSS',
-  html: 'HTML',
-  json: 'JSON',
-  bash: 'SH',
-  sql: 'SQL',
+  javascript: 'JS', typescript: 'TS', python: 'PY', java: 'JV',
+  cpp: 'C+', css: 'CSS', html: 'HTML', json: 'JSON', bash: 'SH', sql: 'SQL',
 }
 
 function timeAgo(date) {
@@ -36,59 +21,121 @@ function timeAgo(date) {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-export default function SnippetList({ snippets, selected, loading, onSelect, onNew }) {
+export default function SnippetList({ t, snippets, selected, loading, onSelect, onNew }) {
   const [search, setSearch] = useState('')
 
   const fuse = new Fuse(snippets, { keys: ['title', 'tags', 'language'], threshold: 0.4 })
   const filtered = search ? fuse.search(search).map(r => r.item) : snippets
 
   return (
-    <div style={styles.panel}>
+    <div style={{
+      width: '272px',
+      minWidth: '272px',
+      background: t.list,
+      borderRight: `1px solid ${t.border}`,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      position: 'relative',
+      zIndex: 10,
+      transition: 'background 0.3s ease, border-color 0.3s ease',
+    }}>
+
       {/* Search bar */}
-      <div style={styles.searchBar}>
-        <span style={styles.searchIcon}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="8" stroke="#4a4a7a" strokeWidth="2"/>
-            <path d="M21 21L16.65 16.65" stroke="#4a4a7a" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </span>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '12px 14px',
+        borderBottom: `1px solid ${t.border}`,
+      }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, color: t.textMuted }}>
+          <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+          <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
         <input
           placeholder="Search snippets..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={styles.searchInput}
+          style={{
+            flex: 1,
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            color: t.text,
+            fontSize: '13px',
+            fontFamily: 'inherit',
+          }}
         />
+        {search && (
+          <button onClick={() => setSearch('')} style={{
+            background: 'transparent',
+            border: 'none',
+            color: t.textMuted,
+            cursor: 'pointer',
+            fontSize: '18px',
+            lineHeight: 1,
+            padding: 0,
+          }}>×</button>
+        )}
       </div>
 
-      {/* Count + Filter */}
-      <div style={styles.listHeader}>
-        <span style={styles.count}>
+      {/* Count + Filter row */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '8px 14px',
+        borderBottom: `1px solid ${t.border}`,
+      }}>
+        <span style={{
+          fontSize: '10px',
+          fontWeight: '600',
+          color: t.textFaint,
+          letterSpacing: '1px',
+          textTransform: 'uppercase',
+          fontFamily: "'IBM Plex Mono', monospace",
+        }}>
           {filtered.length} {filtered.length === 1 ? 'snippet' : 'snippets'}
         </span>
-        <button style={styles.filterBtn} title="Filter">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M3 6H21M7 12H17M11 18H13" stroke="#4a4a7a" strokeWidth="2" strokeLinecap="round"/>
+        <button style={{ background: 'transparent', border: 'none', color: t.textMuted, cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6H21M7 12H17M11 18H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
         </button>
       </div>
 
       {/* List */}
-      <div style={styles.list}>
+      <div style={{ flex: 1, overflowY: 'auto' }}>
         {loading && (
           <div style={styles.empty}>
-            <div style={styles.emptyIcon}>⟳</div>
-            <p style={styles.emptyText}>Loading snippets...</p>
+            <div style={{ ...styles.emptyIcon, color: t.textFaint }}>◌</div>
+            <p style={{ ...styles.emptyText, color: t.textDim }}>Loading snippets...</p>
           </div>
         )}
 
         {!loading && filtered.length === 0 && (
           <div style={styles.empty}>
-            <div style={styles.emptyIcon}>{ }</div>
-            <p style={styles.emptyText}>
+            <div style={{ opacity: 0.25, marginBottom: '4px' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke={t.textFaint} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <p style={{ ...styles.emptyText, color: t.textDim }}>
               {search ? 'No snippets match your search' : 'No snippets yet'}
             </p>
             {!search && (
-              <button onClick={onNew} style={styles.emptyBtn}>
+              <button onClick={onNew} style={{
+                background: 'transparent',
+                border: `1px solid ${t.border}`,
+                borderRadius: '7px',
+                color: '#6366f1',
+                fontSize: '12px',
+                padding: '7px 14px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                marginTop: '8px',
+              }}>
                 + Create your first snippet
               </button>
             )}
@@ -98,6 +145,7 @@ export default function SnippetList({ snippets, selected, loading, onSelect, onN
         {filtered.map(snippet => (
           <SnippetCard
             key={snippet._id}
+            t={t}
             snippet={snippet}
             isSelected={selected?._id === snippet._id}
             onClick={() => onSelect(snippet)}
@@ -108,41 +156,65 @@ export default function SnippetList({ snippets, selected, loading, onSelect, onN
   )
 }
 
-function SnippetCard({ snippet, isSelected, onClick }) {
+function SnippetCard({ t, snippet, isSelected, onClick }) {
+  const [hovered, setHovered] = useState(false)
   const color = LANG_COLORS[snippet.language] || '#888'
   const short = LANG_SHORT[snippet.language] || snippet.language?.slice(0, 2).toUpperCase()
 
   return (
     <div
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        ...styles.card,
-        ...(isSelected ? styles.cardActive : {})
-      }}
-      onMouseEnter={e => {
-        if (!isSelected) e.currentTarget.style.background = '#14141f'
-      }}
-      onMouseLeave={e => {
-        if (!isSelected) e.currentTarget.style.background = 'transparent'
+        padding: '13px 14px 13px 12px',
+        borderBottom: `1px solid ${t.borderSubtle}`,
+        cursor: 'pointer',
+        transition: 'background 0.15s, border-left-color 0.15s',
+        background: isSelected ? t.cardActive : hovered ? t.cardHover : 'transparent',
+        borderLeft: isSelected ? '2px solid #6366f1' : '2px solid transparent',
       }}>
 
       {/* Title */}
-      <div style={styles.cardTitle}>
-        {snippet.title || 'Untitled'}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '5px' }}>
+        <span style={{
+          fontSize: '13px',
+          fontWeight: '600',
+          color: t.text,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          flex: 1,
+        }}>
+          {snippet.title || 'Untitled'}
+        </span>
         {snippet.isPublic && (
-          <span style={styles.publicDot} title="Public" />
+          <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} title="Public" />
         )}
       </div>
 
       {/* Code preview */}
-      <div style={styles.cardPreview}>
+      <div style={{
+        fontSize: '11px',
+        color: t.textFaint,
+        fontFamily: "'IBM Plex Mono', monospace",
+        marginBottom: '8px',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }}>
         {snippet.code?.split('\n').slice(0, 2).join(' ').slice(0, 80) || 'No code yet'}
       </div>
 
       {/* Footer */}
-      <div style={styles.cardFooter}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
         <span style={{
-          ...styles.langBadge,
+          fontSize: '9px',
+          fontWeight: '700',
+          padding: '2px 6px',
+          borderRadius: '4px',
+          letterSpacing: '0.5px',
+          fontFamily: "'IBM Plex Mono', monospace",
           background: `${color}18`,
           color: color,
           border: `1px solid ${color}33`,
@@ -151,10 +223,23 @@ function SnippetCard({ snippet, isSelected, onClick }) {
         </span>
 
         {snippet.tags?.slice(0, 2).map(tag => (
-          <span key={tag} style={styles.tagBadge}>{tag}</span>
+          <span key={tag} style={{
+            fontSize: '10px',
+            color: t.textMuted,
+            background: 'transparent',
+            border: `1px solid ${t.border}`,
+            borderRadius: '20px',
+            padding: '1px 6px',
+            fontFamily: "'IBM Plex Mono', monospace",
+          }}>#{tag}</span>
         ))}
 
-        <span style={styles.cardTime}>
+        <span style={{
+          fontSize: '10px',
+          color: t.textFaint,
+          marginLeft: 'auto',
+          fontFamily: "'IBM Plex Mono', monospace",
+        }}>
           {snippet.updatedAt ? timeAgo(snippet.updatedAt) : ''}
         </span>
       </div>
@@ -163,154 +248,20 @@ function SnippetCard({ snippet, isSelected, onClick }) {
 }
 
 const styles = {
-  panel: {
-    width: '280px',
-    minWidth: '280px',
-    background: '#0f0f17',
-    borderRight: '1px solid #1e1e30',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  searchBar: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '14px 16px',
-    borderBottom: '1px solid #1e1e30',
-  },
-  searchIcon: {
-    flexShrink: 0,
-    display: 'flex',
-    alignItems: 'center',
-  },
-  searchInput: {
-    flex: 1,
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
-    color: '#e2e2f0',
-    fontSize: '13px',
-    fontFamily: 'inherit',
-  },
-  listHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '10px 16px',
-    borderBottom: '1px solid #1e1e30',
-  },
-  count: {
-    fontSize: '11px',
-    fontWeight: '600',
-    color: '#3a3a5c',
-    letterSpacing: '0.5px',
-    textTransform: 'uppercase',
-  },
-  filterBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: '#4a4a7a',
-    cursor: 'pointer',
-    padding: '2px',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  list: {
-    flex: 1,
-    overflowY: 'auto',
-  },
-  card: {
-    padding: '14px 16px',
-    borderBottom: '1px solid #13131e',
-    cursor: 'pointer',
-    transition: 'background 0.15s',
-  },
-  cardActive: {
-    background: '#16162a',
-    borderLeft: '2px solid #4f46e5',
-    paddingLeft: '14px',
-  },
-  cardTitle: {
-    fontSize: '13px',
-    fontWeight: '600',
-    color: '#e2e2f0',
-    marginBottom: '5px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  publicDot: {
-    width: '6px',
-    height: '6px',
-    borderRadius: '50%',
-    background: '#4ade80',
-    flexShrink: 0,
-  },
-  cardPreview: {
-    fontSize: '11px',
-    color: '#3a3a5c',
-    fontFamily: "'IBM Plex Mono', monospace",
-    marginBottom: '8px',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  cardFooter: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '5px',
-    flexWrap: 'wrap',
-  },
-  langBadge: {
-    fontSize: '9px',
-    fontWeight: '700',
-    padding: '2px 6px',
-    borderRadius: '4px',
-    letterSpacing: '0.5px',
-    fontFamily: "'IBM Plex Mono', monospace",
-  },
-  tagBadge: {
-    fontSize: '10px',
-    color: '#4a4a7a',
-    background: '#1e1e30',
-    borderRadius: '4px',
-    padding: '1px 5px',
-  },
-  cardTime: {
-    fontSize: '10px',
-    color: '#2a2a45',
-    marginLeft: 'auto',
-  },
   empty: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: '60px 20px',
+    padding: '48px 20px',
     gap: '8px',
   },
   emptyIcon: {
     fontSize: '28px',
-    opacity: 0.2,
     marginBottom: '4px',
   },
   emptyText: {
-    color: '#3a3a5c',
     fontSize: '12px',
     textAlign: 'center',
+    fontFamily: "'IBM Plex Mono', monospace",
   },
-  emptyBtn: {
-    background: 'transparent',
-    border: '1px solid #1e1e30',
-    borderRadius: '6px',
-    color: '#4f46e5',
-    fontSize: '12px',
-    padding: '6px 12px',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    marginTop: '8px',
-  }
 }

@@ -69,7 +69,7 @@ export default function Login() {
   const isDisabled = loading || !email || !password
 
   return (
-    <div style={{ ...styles.page, background: t.page, color: t.text }}>
+    <div style={{ ...styles.page, background: t.page, color: t.text, height: '100vh', overflow: 'hidden' }}>
 
       {/* Dot grid */}
       <div style={{
@@ -104,12 +104,14 @@ export default function Login() {
       </nav>
 
       {/* Auth Card */}
-      <main style={{
-        ...styles.main,
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(20px)',
-        transition: 'opacity 0.6s ease, transform 0.6s ease',
-      }}>
+      <main
+        style={{
+          ...styles.main,
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(20px)',
+          transition: 'opacity 0.6s ease, transform 0.6s ease',
+        }}
+      >
         <div style={{ ...styles.card, background: t.card, borderColor: t.border }}>
 
           {/* Badge */}
@@ -126,6 +128,44 @@ export default function Login() {
           <p style={{ ...styles.sub, color: t.textMuted }}>
             Sign in to access your tools.
           </p>
+
+          {/* Google OAuth Button */}
+          <a
+            href="/api/auth/google"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              width: '100%',
+              background: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff',
+              border: `1px solid ${t.border}`,
+              borderRadius: '8px',
+              color: t.text,
+              fontSize: '13px',
+              fontWeight: '500',
+              padding: '11px 14px',
+              textDecoration: 'none',
+              fontFamily: "'Syne', sans-serif",
+              marginBottom: '14px',
+              boxSizing: 'border-box',
+              transition: 'background 0.2s ease',
+            }}>
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </a>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+            <div style={{ flex: 1, height: '1px', background: t.border }} />
+            <span style={{ fontSize: '11px', color: t.textFaint, fontFamily: "'IBM Plex Mono', monospace" }}>or continue with email</span>
+            <div style={{ flex: 1, height: '1px', background: t.border }} />
+          </div>
 
           {/* Error */}
           {error && (
@@ -166,7 +206,20 @@ export default function Login() {
             </div>
 
             <div style={styles.field}>
-              <label style={{ ...styles.label, color: t.textMuted }}>Password</label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ ...styles.label, color: t.textMuted }}>Password</label>
+                <Link
+                  to="/forgot-password"
+                  style={{
+                    fontSize: '11px',
+                    color: '#6366f1',
+                    textDecoration: 'none',
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontWeight: '500',
+                  }}>
+                  Forgot password?
+                </Link>
+              </div>
               <div style={styles.inputWrap}>
                 <svg style={{ ...styles.inputIcon, color: t.textFaint }} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4">
                   <rect x="3" y="9" width="14" height="9" rx="1.5" />
@@ -215,7 +268,7 @@ export default function Login() {
             <Link to="/register" style={styles.footLink}>Register</Link>
           </p>
 
-          {/* Terminal — same as homepage */}
+          {/* Terminal */}
           <div style={{ ...styles.terminal, background: t.terminal, borderColor: t.border }}>
             <div style={{ ...styles.terminalHeader, background: t.terminalHeader, borderColor: t.border }}>
               <span style={{ ...styles.terminalDot, background: '#ef4444' }} />
@@ -294,16 +347,16 @@ function TerminalLine({ children, delay, color }) {
 
 const styles = {
   page: {
-    minHeight: '100vh',
+    height: '100vh',
     position: 'relative',
-    overflow: 'hidden',
     fontFamily: "'Syne', sans-serif",
     transition: 'background 0.3s ease, color 0.3s ease',
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'hidden',
   },
   dotGrid: {
-    position: 'fixed',
+    position: 'fixed',   // fixed so it covers the whole viewport without adding scroll height
     inset: 0,
     backgroundSize: '28px 28px',
     opacity: 0.6,
@@ -311,7 +364,7 @@ const styles = {
     transition: 'background-image 0.3s ease',
   },
   orb1: {
-    position: 'fixed',
+    position: 'fixed',   // fixed so orbs don't add to scroll height
     top: '-20%',
     right: '-10%',
     width: '600px',
@@ -343,6 +396,7 @@ const styles = {
     top: 0,
     zIndex: 100,
     transition: 'background 0.3s ease, border-color 0.3s ease',
+    flexShrink: 0,  // prevent nav from shrinking
   },
   navLogo: {
     display: 'flex',
@@ -377,20 +431,24 @@ const styles = {
     fontFamily: 'inherit',
   },
   main: {
-    flex: 1,
+    // Use padding-based centering instead of flex centering
+    // This way content scrolls naturally rather than being clipped
     display: 'flex',
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: '48px 24px',
+    alignItems: 'center',
+    padding: '32px 24px 80px',
     position: 'relative',
     zIndex: 10,
+    flex: 1,
+    overflowY: 'auto',
+    minHeight: 0,
   },
   card: {
     width: '100%',
     maxWidth: '460px',
     border: '1px solid',
     borderRadius: '14px',
-    padding: '40px',
+    padding: '28px 36px 32px',
     backdropFilter: 'blur(12px)',
     boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
     transition: 'background 0.3s ease, border-color 0.3s ease',
@@ -405,7 +463,7 @@ const styles = {
     color: '#a78bfa',
     fontSize: '12px',
     padding: '5px 14px',
-    marginBottom: '24px',
+    marginBottom: '14px',
     fontFamily: "'IBM Plex Mono', monospace",
   },
   badgeDot: {
@@ -417,10 +475,10 @@ const styles = {
     flexShrink: 0,
   },
   heading: {
-    fontSize: '36px',
+    fontSize: '31px',
     fontWeight: '800',
     lineHeight: '1.15',
-    marginBottom: '10px',
+    marginBottom: '6px',
     letterSpacing: '-0.5px',
   },
   headingAccent: {
@@ -432,7 +490,7 @@ const styles = {
   sub: {
     fontSize: '14px',
     lineHeight: '1.6',
-    marginBottom: '28px',
+    marginBottom: '18px',
   },
   errorBox: {
     background: '#ef444411',
@@ -501,7 +559,7 @@ const styles = {
     transition: 'opacity 0.2s ease, transform 0.2s ease',
   },
   foot: {
-    marginTop: '24px',
+    marginTop: '16px',
     fontSize: '13px',
     textAlign: 'center',
   },
@@ -511,7 +569,7 @@ const styles = {
     fontWeight: '600',
   },
   terminal: {
-    marginTop: '28px',
+    marginTop: '18px',
     border: '1px solid',
     borderRadius: '12px',
     overflow: 'hidden',
@@ -537,9 +595,9 @@ const styles = {
     fontFamily: "'IBM Plex Mono', monospace",
   },
   terminalBody: {
-    padding: '16px 20px',
+    padding: '12px 20px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px',
+    gap: '3px',
   },
 }

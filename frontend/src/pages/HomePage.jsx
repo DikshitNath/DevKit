@@ -39,7 +39,7 @@ const lightTheme = {
 const TOOLS = [
   {
     id: 'api',
-    path: '/api-tester',
+    path: '/test-api',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <path d="M8 6L3 12L8 18M16 6L21 12L16 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -180,10 +180,10 @@ export default function HomePage() {
           {user ? (
             <>
               <div style={styles.navUser}>
-                <div style={styles.navAvatar}>
+                <div onClick={()=> navigate('/profile')} style={styles.navAvatar}>
                   {user.username?.charAt(0).toUpperCase()}
                 </div>
-                <span style={{ ...styles.navUsername, color: t.textMuted }}>{user.username}</span>
+                <span style={{ ...styles.navUsername, color: t.textMuted }} onClick={'/profile'}>{user.username}</span>
               </div>
               <button onClick={logout} style={{ ...styles.navLogout, color: t.textMuted, borderColor: t.border }}>
                 Logout
@@ -225,7 +225,7 @@ export default function HomePage() {
         </p>
 
         <div style={styles.heroActions}>
-          <button onClick={() => navigate(user ? '/api-tester' : '/register')} style={styles.heroCTA}>
+          <button onClick={() => navigate(user ? '/test-api' : '/register')} style={styles.heroCTA}>
             {user ? 'Open API Tester' : 'Get started free'}
             <span>→</span>
           </button>
@@ -530,6 +530,7 @@ const styles = {
     fontSize: '12px',
     fontWeight: '600',
     color: '#fff',
+    cursor: 'pointer',
   },
   navUsername: {
     fontSize: '13px',
