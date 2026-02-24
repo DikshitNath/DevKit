@@ -88,7 +88,7 @@ export default function ApiTester() {
   const [timeTaken, setTimeTaken] = useState(null)
   const [historyKey, setHistoryKey] = useState(0)
   const [activeTab, setActiveTab] = useState('headers')
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const t = isDark ? darkTheme : lightTheme
@@ -142,12 +142,34 @@ export default function ApiTester() {
       {/* LEFT SIDEBAR */}
       <aside style={{ width: '240px', minWidth: '240px', background: t.sidebar, borderRight: `1px solid ${t.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 10, transition: 'background 0.3s ease, border-color 0.3s ease' }}>
         {/* Logo */}
-        <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '18px 16px 14px', borderBottom: `1px solid ${t.border}`, cursor: 'pointer' }}>
-          <div style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M8 6L3 12L8 18M16 6L21 12L16 18" stroke="#a78bfa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+        <div
+          onClick={() => navigate('/')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '18px 16px 14px',
+            borderBottom: `1px solid ${t.border}`,
+            cursor: 'pointer',
+          }}>
+          <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+            <defs>
+              <linearGradient id="sidebarBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#4f46e5" />
+                <stop offset="100%" stopColor="#7c3aed" />
+              </linearGradient>
+              <radialGradient id="sidebarInnerGlow" cx="30%" cy="25%" r="60%">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#sidebarBgGrad)" />
+            <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#sidebarInnerGlow)" />
+            <rect x="1" y="1" width="118" height="118" rx="27.5" ry="27.5" fill="none" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.5" />
+            <path d="M42 36 L22 60 L42 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
+            <path d="M78 36 L98 60 L78 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
+            <line x1="66" y1="30" x2="54" y2="90" stroke="#ffffff" strokeWidth="6" strokeLinecap="round" strokeOpacity="0.6" />
+          </svg>
           <span style={{ fontSize: '15px', fontWeight: '700', color: t.text, letterSpacing: '0.4px' }}>DevKit</span>
         </div>
 

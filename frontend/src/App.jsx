@@ -9,6 +9,7 @@ import Profile from './pages/Profile'
 import ApiTester from './components/ApiTester'
 import SnippetManager from './components/SnippetManager'
 import HomePage from './pages/HomePage'
+import ColorPalette from './pages/ColorPalatte'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -42,6 +43,7 @@ function AppRoutes() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/test-api" element={<ProtectedRoute><ApiTester /></ProtectedRoute>} />
         <Route path="/snippets" element={<ProtectedRoute><SnippetManager /></ProtectedRoute>} />
+        <Route path="/color-palette" element={<ProtectedRoute><ColorPalette /></ProtectedRoute>} />
       </Routes>
     </>
   )

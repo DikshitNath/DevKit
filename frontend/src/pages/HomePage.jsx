@@ -42,7 +42,7 @@ const TOOLS = [
     path: '/test-api',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M8 6L3 12L8 18M16 6L21 12L16 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M8 6L3 12L8 18M16 6L21 12L16 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
     name: 'API Tester',
@@ -56,8 +56,8 @@ const TOOLS = [
     path: '/snippets',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
     name: 'Snippet Manager',
@@ -71,8 +71,8 @@ const TOOLS = [
     path: '/json',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 6C4 4.89543 4.89543 4 6 4H8C8 4 9 4 9 5V7C9 7.55228 8.55228 8 8 8H6C4.89543 8 4 8.89543 4 10V14C4 15.1046 4.89543 16 6 16H8C8.55228 16 9 16.4477 9 17V19C9 20 8 20 8 20H6C4.89543 20 4 19.1046 4 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M20 6C20 4.89543 19.1046 4 18 4H16C16 4 15 4 15 5V7C15 7.55228 15.4477 8 16 8H18C19.1046 8 20 8.89543 20 10V14C20 15.1046 19.1046 16 18 16H16C15.4477 16 15 16.4477 15 17V19C15 20 16 20 16 20H18C19.1046 20 20 19.1046 20 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M4 6C4 4.89543 4.89543 4 6 4H8C8 4 9 4 9 5V7C9 7.55228 8.55228 8 8 8H6C4.89543 8 4 8.89543 4 10V14C4 15.1046 4.89543 16 6 16H8C8.55228 16 9 16.4477 9 17V19C9 20 8 20 8 20H6C4.89543 20 4 19.1046 4 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M20 6C20 4.89543 19.1046 4 18 4H16C16 4 15 4 15 5V7C15 7.55228 15.4477 8 16 8H18C19.1046 8 20 8.89543 20 10V14C20 15.1046 19.1046 16 18 16H16C15.4477 16 15 16.4477 15 17V19C15 20 16 20 16 20H18C19.1046 20 20 19.1046 20 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
     name: 'JSON Formatter',
@@ -86,9 +86,9 @@ const TOOLS = [
     path: '/regex',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-        <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M8 11H14M11 8V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+        <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M8 11H14M11 8V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
     name: 'Regex Tester',
@@ -102,8 +102,8 @@ const TOOLS = [
     path: '/jwt',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
-        <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
+        <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
     name: 'JWT Decoder',
@@ -114,19 +114,18 @@ const TOOLS = [
   },
   {
     id: 'color',
-    path: '/color',
+    path: '/color-palette',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-        <path d="M12 2C12 2 7 7 7 12C7 14.6522 8.05357 17.1957 9.92893 19.0711C11.8043 20.9464 14.3478 22 17 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+        <path d="M12 2C12 2 7 7 7 12C7 14.6522 8.05357 17.1957 9.92893 19.0711C11.8043 20.9464 14.3478 22 17 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
     name: 'Color Palette',
     desc: 'Generate beautiful color palettes and convert between color formats instantly.',
     tags: ['HEX', 'RGB', 'HSL', 'Generate'],
     color: '#8b5cf6',
-    glow: 'rgba(139,92,246,0.15)',
-    soon: true,
+    glow: 'rgba(139,92,246,0.15)'
   },
 ]
 
@@ -135,7 +134,7 @@ export default function HomePage() {
   const { user, logout } = useAuth()
   const [visible, setVisible] = useState(false)
   const [hoveredTool, setHoveredTool] = useState(null)
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   const t = isDark ? darkTheme : lightTheme
 
   useEffect(() => {
@@ -163,15 +162,49 @@ export default function HomePage() {
       <nav style={{ ...styles.nav, background: t.nav, borderColor: t.border }}>
         <div style={styles.navLogo}>
           <div style={styles.navLogoIcon}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M8 6L3 12L8 18M16 6L21 12L16 18" stroke="#a78bfa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#4f46e5" />
+                  <stop offset="100%" stopColor="#7c3aed" />
+                </linearGradient>
+                <radialGradient id="innerGlow" cx="30%" cy="25%" r="60%">
+                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
+                  <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Background */}
+              <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#bgGrad)" />
+
+              {/* Inner highlight */}
+              <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#innerGlow)" />
+
+              {/* Border */}
+              <rect x="1" y="1" width="118" height="118" rx="27.5" ry="27.5"
+                fill="none" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.5" />
+
+              {/* Left bracket < */}
+              <path d="M42 36 L22 60 L42 84"
+                fill="none" stroke="#ffffff" strokeWidth="8"
+                strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
+
+              {/* Right bracket > */}
+              <path d="M78 36 L98 60 L78 84"
+                fill="none" stroke="#ffffff" strokeWidth="8"
+                strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
+
+              {/* Center slash */}
+              <line x1="66" y1="30" x2="54" y2="90"
+                stroke="#ffffff" strokeWidth="6"
+                strokeLinecap="round" strokeOpacity="0.6" />
             </svg>
           </div>
           <span style={{ ...styles.navLogoText, color: t.text }}>DevKit</span>
         </div>
 
         <div style={styles.navLinks}>
-          {['API Tester', 'Snippets', 'Tools'].map(link => (
+          {['API Tester', 'Snippets', 'Color Palettes'].map(link => (
             <button key={link} style={{ ...styles.navLink, color: t.textMuted }}>{link}</button>
           ))}
         </div>
@@ -180,7 +213,7 @@ export default function HomePage() {
           {user ? (
             <>
               <div style={styles.navUser}>
-                <div onClick={()=> navigate('/profile')} style={styles.navAvatar}>
+                <div onClick={() => navigate('/profile')} style={styles.navAvatar}>
                   {user.username?.charAt(0).toUpperCase()}
                 </div>
                 <span style={{ ...styles.navUsername, color: t.textMuted }} onClick={'/profile'}>{user.username}</span>
@@ -284,13 +317,47 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer style={{ ...styles.footer, borderColor: t.border }}>
-        <div style={styles.footerLogo}>
+        <div style={styles.navLogo}>
           <div style={styles.navLogoIcon}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M8 6L3 12L8 18M16 6L21 12L16 18" stroke="#a78bfa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#4f46e5" />
+                  <stop offset="100%" stopColor="#7c3aed" />
+                </linearGradient>
+                <radialGradient id="innerGlow" cx="30%" cy="25%" r="60%">
+                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
+                  <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Background */}
+              <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#bgGrad)" />
+
+              {/* Inner highlight */}
+              <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#innerGlow)" />
+
+              {/* Border */}
+              <rect x="1" y="1" width="118" height="118" rx="27.5" ry="27.5"
+                fill="none" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.5" />
+
+              {/* Left bracket < */}
+              <path d="M42 36 L22 60 L42 84"
+                fill="none" stroke="#ffffff" strokeWidth="8"
+                strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
+
+              {/* Right bracket > */}
+              <path d="M78 36 L98 60 L78 84"
+                fill="none" stroke="#ffffff" strokeWidth="8"
+                strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
+
+              {/* Center slash */}
+              <line x1="66" y1="30" x2="54" y2="90"
+                stroke="#ffffff" strokeWidth="6"
+                strokeLinecap="round" strokeOpacity="0.6" />
             </svg>
           </div>
-          <span style={{ ...styles.navLogoText, fontSize: '13px', color: t.text }}>DevKit</span>
+          <span style={{ ...styles.navLogoText, color: t.text }}>DevKit</span>
         </div>
         <p style={{ ...styles.footerText, color: t.textFaint }}>Built for developers, by developers.</p>
       </footer>

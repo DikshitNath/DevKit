@@ -20,7 +20,7 @@ export default function SnippetSidebar({
 
   return (
     <aside style={{
-      width: '220px',
+      width: '260px',
       minWidth: '220px',
       background: t.sidebar,
       borderRight: `1px solid ${t.border}`,
@@ -44,11 +44,24 @@ export default function SnippetSidebar({
           borderBottom: `1px solid ${t.border}`,
           cursor: 'pointer',
         }}>
-        <div style={styles.logoIcon}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M8 6L3 12L8 18M16 6L21 12L16 18" stroke="#a78bfa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
+        <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+          <defs>
+            <linearGradient id="sidebarBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#4f46e5" />
+              <stop offset="100%" stopColor="#7c3aed" />
+            </linearGradient>
+            <radialGradient id="sidebarInnerGlow" cx="30%" cy="25%" r="60%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#sidebarBgGrad)" />
+          <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#sidebarInnerGlow)" />
+          <rect x="1" y="1" width="118" height="118" rx="27.5" ry="27.5" fill="none" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.5" />
+          <path d="M42 36 L22 60 L42 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
+          <path d="M78 36 L98 60 L78 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
+          <line x1="66" y1="30" x2="54" y2="90" stroke="#ffffff" strokeWidth="6" strokeLinecap="round" strokeOpacity="0.6" />
+        </svg>
         <span style={{ fontSize: '15px', fontWeight: '700', color: t.text, letterSpacing: '0.4px' }}>DevKit</span>
       </div>
 
@@ -194,9 +207,9 @@ export default function SnippetSidebar({
           transition: 'all 0.15s',
         }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-            <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </div>

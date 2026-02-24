@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+
+    <!-- Main background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+
+    <!-- Subtle inner highlight (top-left glow) -->
+    <radialGradient id="innerGlow" cx="30%" cy="25%" r="60%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Outer drop shadow -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#4f46e5" flood-opacity="0.45"/>
+    </filter>
+
+    <!-- Soft glow behind icon -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Clip to rounded rect -->
+    <clipPath id="roundedClip">
+      <rect x="0" y="0" width="120" height="120" rx="28" ry="28"/>
+    </clipPath>
+
+  </defs>
+
+  <!-- Background rounded square with shadow -->
+  <rect x="0" y="0" width="120" height="120" rx="28" ry="28"
+        fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- Inner highlight overlay -->
+  <rect x="0" y="0" width="120" height="120" rx="28" ry="28"
+        fill="url(#innerGlow)" clip-path="url(#roundedClip)"/>
+
+  <!-- Subtle border for depth -->
+  <rect x="1" y="1" width="118" height="118" rx="27.5" ry="27.5"
+        fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="1.5"/>
+
+  <!-- Left bracket < -->
+  <path d="M42 36 L22 60 L42 84"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-opacity="0.95"
+        filter="url(#glow)"/>
+
+  <!-- Right bracket > -->
+  <path d="M78 36 L98 60 L78 84"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-opacity="0.95"
+        filter="url(#glow)"/>
+
+  <!-- Center slash / -->
+  <line x1="66" y1="30" x2="54" y2="90"
+        stroke="#ffffff"
+        stroke-width="6"
+        stroke-linecap="round"
+        stroke-opacity="0.6"/>
+
+</svg>

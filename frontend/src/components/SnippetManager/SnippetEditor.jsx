@@ -340,7 +340,7 @@ export default function SnippetEditor({ t, isDark, snippet, saving, onSave, onDe
       )}
 
       {/* Monaco Editor */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
+      <div style={{ flex: 1, overflow: 'hidden', zIndex: -100 }}>
         <Editor
           height="100%"
           language={form.language}

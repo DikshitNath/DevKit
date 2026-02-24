@@ -75,7 +75,7 @@ export default function SnippetManager() {
   const [filter, setFilter] = useState('all')
   const [filterTag, setFilterTag] = useState('')
   const [filterLang, setFilterLang] = useState('')
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   const { user, logout } = useAuth()
   const t = isDark ? darkTheme : lightTheme
 

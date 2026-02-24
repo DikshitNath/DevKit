@@ -43,7 +43,7 @@ export default function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState(false)
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   const navigate = useNavigate()
   const t = isDark ? darkTheme : lightTheme
 
