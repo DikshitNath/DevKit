@@ -10,6 +10,9 @@ import ApiTester from './components/ApiTester'
 import SnippetManager from './components/SnippetManager'
 import HomePage from './pages/HomePage'
 import ColorPalette from './pages/ColorPalatte'
+import RegexTester from './pages/RegexTester'
+import JwtDecoder from './pages/JwtDecoder'
+import JSONForge from './pages/JSON'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -44,6 +47,9 @@ function AppRoutes() {
         <Route path="/test-api" element={<ProtectedRoute><ApiTester /></ProtectedRoute>} />
         <Route path="/snippets" element={<ProtectedRoute><SnippetManager /></ProtectedRoute>} />
         <Route path="/color-palette" element={<ProtectedRoute><ColorPalette /></ProtectedRoute>} />
+        <Route path="/regex" element={<ProtectedRoute><RegexTester /></ProtectedRoute>} />
+        <Route path="/jwt" element={<ProtectedRoute><JwtDecoder /></ProtectedRoute>} />
+        <Route path="/json" element={<ProtectedRoute><JSONForge /></ProtectedRoute>} />
       </Routes>
     </>
   )

@@ -161,6 +161,7 @@ export default function HomePage() {
       {/* Navbar */}
       <nav style={{ ...styles.nav, background: t.nav, borderColor: t.border }}>
         <div style={styles.navLogo}>
+
           <div style={styles.navLogoIcon}>
             <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
@@ -534,13 +535,13 @@ const styles = {
   },
   nav: {
     display: 'flex',
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '16px 48px',
     borderBottom: '1px solid',
     backdropFilter: 'blur(12px)',
-    position: 'sticky',
-    top: 0,
+    position: 'fixed',  
     zIndex: 100,
     transition: 'background 0.3s ease, border-color 0.3s ease',
   },
@@ -635,12 +636,12 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
-    padding: '80px 48px 60px',
+    padding: '130px 48px 60px',
     position: 'relative',
   },
   heroBadge: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'center', 
     gap: '8px',
     background: '#4f46e511',
     border: '1px solid #4f46e533',
