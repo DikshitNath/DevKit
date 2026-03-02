@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { generateBody, explainResponse } from '../../utils/aiService'
+import { useTheme } from '../../context/ThemeContext'
 
-export default function AIPanel({ t, isDark, request, response, onBodyGenerated }) {
+export default function AIPanel({ request, response, onBodyGenerated }) {
+  const { isDark, theme: t } = useTheme()
   const [description, setDescription] = useState('')
   const [output, setOutput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -46,10 +48,7 @@ export default function AIPanel({ t, isDark, request, response, onBodyGenerated 
       borderTop: `1px solid ${t.border}`,
       background: t.aiPanelBg,
       transition: 'background 0.3s ease, border-color 0.3s ease',
-      ...(isMaximized ? {
-        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden',
-      } : {}),
+      ...(isMaximized ? { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden' } : {}),
     }}>
 
       {/* Header */}
@@ -58,11 +57,11 @@ export default function AIPanel({ t, isDark, request, response, onBodyGenerated 
           ✦ AI Assistant
         </span>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button onClick={toggleMaximize} style={{ background: 'transparent', border: 'none', color: t.textMuted, fontSize: '11px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.3px', padding: '2px 6px', borderRadius: '4px' }}>
+          <button onClick={toggleMaximize} style={{ background: 'transparent', border: 'none', color: t.textMuted, fontSize: '11px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", padding: '2px 6px', borderRadius: '4px' }}>
             {isMaximized ? '⊡ Restore' : '⊞ Maximize'}
           </button>
           <div style={{ width: '1px', height: '12px', background: t.border }} />
-          <button onClick={toggleMinimize} style={{ background: 'transparent', border: 'none', color: t.textMuted, fontSize: '11px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.3px', padding: '2px 6px', borderRadius: '4px' }}>
+          <button onClick={toggleMinimize} style={{ background: 'transparent', border: 'none', color: t.textMuted, fontSize: '11px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", padding: '2px 6px', borderRadius: '4px' }}>
             {panelState === 'minimized' ? '▲ Expand' : '▼ Minimize'}
           </button>
         </div>
@@ -73,7 +72,7 @@ export default function AIPanel({ t, isDark, request, response, onBodyGenerated 
 
           {/* Generate Body */}
           <div style={{ padding: '12px 20px', borderBottom: `1px solid ${t.border}`, flexShrink: 0 }}>
-            <div style={{ fontSize: '11px', color: t.textMuted, marginBottom: '8px', letterSpacing: '0.3px', fontFamily: "'IBM Plex Mono', monospace" }}>Generate Request Body</div>
+            <div style={{ fontSize: '11px', color: t.textMuted, marginBottom: '8px', fontFamily: "'IBM Plex Mono', monospace" }}>Generate Request Body</div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 placeholder='e.g. "create a user with name John and age 25"'
@@ -114,30 +113,28 @@ export default function AIPanel({ t, isDark, request, response, onBodyGenerated 
                   ⎘ Copy
                 </button>
               </div>
-
               <div style={{ overflowY: 'auto', padding: '12px', ...(isMaximized ? { flex: 1 } : { maxHeight: '180px' }) }}>
                 {activeFeature === 'generate' ? (
                   <pre style={{ color: t.textMuted, fontSize: '12px', lineHeight: '1.6', whiteSpace: 'pre-wrap', fontFamily: "'IBM Plex Mono', monospace", margin: 0 }}>{output}</pre>
                 ) : (
                   <div style={{ color: mdTextColor, fontSize: '13px', lineHeight: '1.7' }}>
-                    <ReactMarkdown
-                      components={{
-                        h1: ({ children }) => <h1 style={{ color: '#a78bfa', fontSize: '16px', fontWeight: '700', marginBottom: '8px', paddingBottom: '6px', borderBottom: `1px solid ${t.border}` }}>{children}</h1>,
-                        h2: ({ children }) => <h2 style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '700', margin: '12px 0 6px' }}>{children}</h2>,
-                        h3: ({ children }) => <h3 style={{ color: '#a78bfa', fontSize: '13px', fontWeight: '600', margin: '10px 0 4px' }}>{children}</h3>,
-                        p: ({ children }) => <p style={{ margin: '6px 0', color: mdTextColor }}>{children}</p>,
-                        code: ({ node, className, children }) => {
-                          const isInline = !className && !String(children).includes('\n')
-                          return isInline
-                            ? <code style={{ background: mdInlineBg, color: '#fb923c', padding: '1px 6px', borderRadius: '4px', fontSize: '12px', fontFamily: "'IBM Plex Mono', monospace" }}>{children}</code>
-                            : <pre style={{ background: mdCodeBg, border: `1px solid ${t.border}`, borderRadius: '6px', padding: '10px 12px', margin: '8px 0', fontSize: '12px', color: mdCodeColor, overflowX: 'auto', fontFamily: "'IBM Plex Mono', monospace" }}><code>{children}</code></pre>
-                        },
-                        ul: ({ children }) => <ul style={{ paddingLeft: '20px', margin: '6px 0' }}>{children}</ul>,
-                        ol: ({ children }) => <ol style={{ paddingLeft: '20px', margin: '6px 0' }}>{children}</ol>,
-                        li: ({ children }) => <li style={{ margin: '4px 0', color: mdTextColor }}>{children}</li>,
-                        strong: ({ children }) => <strong style={{ color: t.text, fontWeight: '600' }}>{children}</strong>,
-                        hr: () => <hr style={{ border: 'none', borderTop: `1px solid ${t.border}`, margin: '10px 0' }} />,
-                      }}>
+                    <ReactMarkdown components={{
+                      h1: ({ children }) => <h1 style={{ color: '#a78bfa', fontSize: '16px', fontWeight: '700', marginBottom: '8px', paddingBottom: '6px', borderBottom: `1px solid ${t.border}` }}>{children}</h1>,
+                      h2: ({ children }) => <h2 style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '700', margin: '12px 0 6px' }}>{children}</h2>,
+                      h3: ({ children }) => <h3 style={{ color: '#a78bfa', fontSize: '13px', fontWeight: '600', margin: '10px 0 4px' }}>{children}</h3>,
+                      p: ({ children }) => <p style={{ margin: '6px 0', color: mdTextColor }}>{children}</p>,
+                      code: ({ className, children }) => {
+                        const isInline = !className && !String(children).includes('\n')
+                        return isInline
+                          ? <code style={{ background: mdInlineBg, color: '#fb923c', padding: '1px 6px', borderRadius: '4px', fontSize: '12px', fontFamily: "'IBM Plex Mono', monospace" }}>{children}</code>
+                          : <pre style={{ background: mdCodeBg, border: `1px solid ${t.border}`, borderRadius: '6px', padding: '10px 12px', margin: '8px 0', fontSize: '12px', color: mdCodeColor, overflowX: 'auto', fontFamily: "'IBM Plex Mono', monospace" }}><code>{children}</code></pre>
+                      },
+                      ul: ({ children }) => <ul style={{ paddingLeft: '20px', margin: '6px 0' }}>{children}</ul>,
+                      ol: ({ children }) => <ol style={{ paddingLeft: '20px', margin: '6px 0' }}>{children}</ol>,
+                      li: ({ children }) => <li style={{ margin: '4px 0', color: mdTextColor }}>{children}</li>,
+                      strong: ({ children }) => <strong style={{ color: t.text, fontWeight: '600' }}>{children}</strong>,
+                      hr: () => <hr style={{ border: 'none', borderTop: `1px solid ${t.border}`, margin: '10px 0' }} />,
+                    }}>
                       {output}
                     </ReactMarkdown>
                   </div>
@@ -150,11 +147,7 @@ export default function AIPanel({ t, isDark, request, response, onBodyGenerated 
           {!output && (
             <div style={{ padding: '20px', display: 'flex', justifyContent: 'center' }}>
               <p style={{ color: t.textFaint, fontSize: '11px', textAlign: 'center', lineHeight: '1.6', fontFamily: "'IBM Plex Mono', monospace" }}>
-                {loading
-                  ? '✦ AI is thinking...'
-                  : response
-                    ? 'Generate a request body or explain the response using AI'
-                    : 'Send a request first, then use AI to explain the response'}
+                {loading ? '✦ AI is thinking...' : response ? 'Generate a request body or explain the response using AI' : 'Send a request first, then use AI to explain the response'}
               </p>
             </div>
           )}

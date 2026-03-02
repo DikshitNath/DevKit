@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
+import { getSnippets, createSnippet, updateSnippet, deleteSnippet } from '../../utils/snippetService'
 import SnippetList from './SnippetList'
 import SnippetEditor from './SnippetEditor'
 import SnippetSidebar from './SnippetSidebar'
-import { getSnippets, createSnippet, updateSnippet, deleteSnippet } from '../../utils/snippetService'
-import { useAuth } from '../../context/AuthContext'
 
 const defaultSnippet = {
   title: 'Untitled Snippet',
@@ -11,60 +12,6 @@ const defaultSnippet = {
   language: 'javascript',
   tags: [],
   isPublic: false,
-}
-
-export const darkTheme = {
-  page: '#080810',
-  sidebar: '#0a0a16',
-  list: '#0a0a16',
-  editor: '#08080f',
-  editorBar: 'rgba(8,8,16,0.9)',
-  border: '#1e1e30',
-  borderSubtle: '#13131e',
-  text: '#e2e2f0',
-  textMuted: '#4a4a7a',
-  textFaint: '#2a2a45',
-  textDim: '#3a3a5c',
-  dot: '#1e1e35',
-  cardHover: 'rgba(255,255,255,0.02)',
-  cardActive: 'rgba(99,102,241,0.08)',
-  tagBg: 'rgba(99,102,241,0.08)',
-  tagBorder: 'rgba(99,102,241,0.2)',
-  tagColor: '#a78bfa',
-  sectionLabel: '#2a2a45',
-  navItemActive: 'rgba(99,102,241,0.1)',
-  dropdownBg: '#0c0c18',
-  statusBar: '#06060e',
-  toggleBg: '#16162a',
-  toggleBorder: '#2a2a45',
-  toggleShadow: '0 4px 20px rgba(0,0,0,0.4)',
-}
-
-export const lightTheme = {
-  page: '#f0f0f8',
-  sidebar: '#f8f8fc',
-  list: '#f4f4fb',
-  editor: '#ffffff',
-  editorBar: 'rgba(248,248,252,0.95)',
-  border: '#e0e0ee',
-  borderSubtle: '#eaeaf4',
-  text: '#1a1a2e',
-  textMuted: '#666688',
-  textFaint: '#aaaacc',
-  textDim: '#888899',
-  dot: '#d8d8ee',
-  cardHover: 'rgba(0,0,0,0.015)',
-  cardActive: 'rgba(99,102,241,0.06)',
-  tagBg: 'rgba(99,102,241,0.06)',
-  tagBorder: 'rgba(99,102,241,0.18)',
-  tagColor: '#6366f1',
-  sectionLabel: '#aaaacc',
-  navItemActive: 'rgba(99,102,241,0.08)',
-  dropdownBg: '#ffffff',
-  statusBar: '#f0f0f8',
-  toggleBg: '#ffffff',
-  toggleBorder: '#e0e0ee',
-  toggleShadow: '0 4px 20px rgba(0,0,0,0.1)',
 }
 
 export default function SnippetManager() {
@@ -75,9 +22,8 @@ export default function SnippetManager() {
   const [filter, setFilter] = useState('all')
   const [filterTag, setFilterTag] = useState('')
   const [filterLang, setFilterLang] = useState('')
-  const [isDark, setIsDark] = useState(false)
   const { user, logout } = useAuth()
-  const t = isDark ? darkTheme : lightTheme
+  const { isDark, theme: t, toggleTheme } = useTheme()
 
   useEffect(() => { fetchSnippets() }, [])
 
@@ -139,10 +85,8 @@ export default function SnippetManager() {
     <div style={{ ...styles.root, background: t.page, color: t.text }}>
 
       {/* Dot grid */}
-      <div style={{
-        ...styles.dotGrid,
-        backgroundImage: `radial-gradient(circle, ${t.dot} 1px, transparent 1px)`,
-      }} />
+      <div style={{ ...styles.dotGrid, backgroundImage: `radial-gradient(circle, ${t.dot} 1px, transparent 1px)` }} />
+
       {/* Glow orbs — dark only */}
       {isDark && (
         <>
@@ -152,46 +96,25 @@ export default function SnippetManager() {
       )}
 
       <SnippetSidebar
-        t={t} isDark={isDark}
         user={user} filter={filter} filterTag={filterTag} filterLang={filterLang}
         allTags={allTags} allLangs={allLangs}
         onFilter={setFilter} onFilterTag={setFilterTag} onFilterLang={setFilterLang}
         onNew={handleNew} onLogout={logout}
       />
       <SnippetList
-        t={t}
         snippets={filteredSnippets} selected={selected} loading={loading}
         onSelect={setSelected} onNew={handleNew}
       />
       <SnippetEditor
-        t={t} isDark={isDark}
         snippet={selected} saving={saving}
         onSave={handleSave} onDelete={handleDelete}
       />
 
       {/* Floating theme toggle */}
       <button
-        onClick={() => setIsDark(d => !d)}
+        onClick={toggleTheme}
         title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        style={{
-          position: 'fixed',
-          bottom: '28px',
-          right: '28px',
-          width: '44px',
-          height: '44px',
-          borderRadius: '50%',
-          background: t.toggleBg,
-          border: `1px solid ${t.toggleBorder}`,
-          boxShadow: `${t.toggleShadow}, 0 0 0 1px ${t.toggleBorder}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          zIndex: 999,
-          fontSize: '19px',
-          transition: 'all 0.3s ease',
-          backdropFilter: 'blur(8px)',
-        }}>
+        style={{ position: 'fixed', bottom: '28px', right: '28px', width: '44px', height: '44px', borderRadius: '50%', background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, boxShadow: t.toggleShadow, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 999, fontSize: '19px', transition: 'all 0.3s ease', backdropFilter: 'blur(8px)' }}>
         {isDark ? '☀️' : '🌙'}
       </button>
 
@@ -212,45 +135,8 @@ export default function SnippetManager() {
 }
 
 const styles = {
-  root: {
-    display: 'flex',
-    height: '100vh',
-    fontFamily: "'Syne', sans-serif",
-    overflow: 'hidden',
-    position: 'relative',
-    transition: 'background 0.3s ease, color 0.3s ease',
-  },
-  dotGrid: {
-    position: 'fixed',
-    inset: 0,
-    backgroundSize: '28px 28px',
-    opacity: 0.55,
-    pointerEvents: 'none',
-    zIndex: 0,
-    transition: 'background-image 0.3s ease',
-  },
-  orb1: {
-    position: 'fixed',
-    top: '-20%',
-    right: '-10%',
-    width: '600px',
-    height: '600px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)',
-    pointerEvents: 'none',
-    animation: 'pulse 8s ease-in-out infinite',
-    zIndex: 0,
-  },
-  orb2: {
-    position: 'fixed',
-    bottom: '-20%',
-    left: '20%',
-    width: '500px',
-    height: '500px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)',
-    pointerEvents: 'none',
-    animation: 'pulse 10s ease-in-out infinite 2s',
-    zIndex: 0,
-  },
+  root: { display: 'flex', height: '100vh', fontFamily: "'Syne', sans-serif", overflow: 'hidden', position: 'relative', transition: 'background 0.3s ease, color 0.3s ease' },
+  dotGrid: { position: 'fixed', inset: 0, backgroundSize: '28px 28px', opacity: 0.55, pointerEvents: 'none', zIndex: 0 },
+  orb1: { position: 'fixed', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)', pointerEvents: 'none', animation: 'pulse 8s ease-in-out infinite', zIndex: 0 },
+  orb2: { position: 'fixed', bottom: '-20%', left: '20%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)', pointerEvents: 'none', animation: 'pulse 10s ease-in-out infinite 2s', zIndex: 0 },
 }

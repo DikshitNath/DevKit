@@ -1,7 +1,9 @@
-import JSONPretty from 'react-json-pretty'
 import { useState } from 'react'
+import JSONPretty from 'react-json-pretty'
+import { useTheme } from '../../context/ThemeContext'
 
-export default function ResponseViewer({ t, response }) {
+export default function ResponseViewer({ response }) {
+  const { theme: t } = useTheme()
   const [view, setView] = useState('pretty')
   const [copied, setCopied] = useState(false)
 
@@ -20,20 +22,7 @@ export default function ResponseViewer({ t, response }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 20px', borderBottom: `1px solid ${t.border}`, background: t.toolbarBg, transition: 'background 0.3s ease, border-color 0.3s ease' }}>
         <div style={{ display: 'flex', gap: '4px' }}>
           {['pretty', 'raw'].map(v => (
-            <button
-              key={v}
-              onClick={() => setView(v)}
-              style={{
-                background: view === v ? t.card : 'transparent',
-                border: `1px solid ${view === v ? t.border : 'transparent'}`,
-                color: view === v ? '#a78bfa' : t.textMuted,
-                fontSize: '11px',
-                padding: '4px 10px',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontFamily: "'IBM Plex Mono', monospace",
-                transition: 'all 0.15s',
-              }}>
+            <button key={v} onClick={() => setView(v)} style={{ background: view === v ? t.card : 'transparent', border: `1px solid ${view === v ? t.border : 'transparent'}`, color: view === v ? '#a78bfa' : t.textMuted, fontSize: '11px', padding: '4px 10px', borderRadius: '5px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", transition: 'all 0.15s' }}>
               {v.charAt(0).toUpperCase() + v.slice(1)}
             </button>
           ))}

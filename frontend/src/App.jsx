@@ -1,18 +1,18 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import Login from './pages/Login'
-import Register from './pages/Register'
-// import ForgotPassword from './pages/ForgotPassword'
-// import ResetPassword from './pages/ResetPassword'
+import { ThemeProvider } from './context/ThemeContext'
+
+import Login from './pages/auth/Login'
+import Register from './pages/auth/Register'
 import Profile from './pages/Profile'
+import HomePage from './pages/HomePage'
 import ApiTester from './components/ApiTester'
 import SnippetManager from './components/SnippetManager'
-import HomePage from './pages/HomePage'
-import ColorPalette from './pages/ColorPalatte'
-import RegexTester from './pages/RegexTester'
-import JwtDecoder from './pages/JwtDecoder'
-import JSONForge from './pages/JSON'
+import ColorPalette from './pages/tools/ColorPalatte'
+import RegexTester from './pages/tools/RegexTester'
+import JwtDecoder from './pages/tools/JwtDecoder'
+import JSONForge from './pages/tools/JSON'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -41,8 +41,6 @@ function AppRoutes() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
-        {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/test-api" element={<ProtectedRoute><ApiTester /></ProtectedRoute>} />
         <Route path="/snippets" element={<ProtectedRoute><SnippetManager /></ProtectedRoute>} />
@@ -57,10 +55,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }

@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
+import DevKitLogo from '../../components/ui/DevKitLogo'
 
 const SAMPLE_JSON = `{
   "app": "JSON Forge",
@@ -31,27 +33,6 @@ const SAMPLE_JSON = `{
   }
 }`;
 
-// ─── Themes ──────────────────────────────────────────────────────────
-const darkTheme = {
-  page: '#080810', sidebar: '#0a0a16', panel: '#0c0c18',
-  border: '#1e1e30', borderSubtle: '#13131e',
-  text: '#e2e2f0', textMuted: '#4a4a7a', textFaint: '#2a2a45', textDim: '#3a3a5c',
-  dot: '#1e1e35', input: '#0c0c18', sectionBg: 'rgba(8,8,16,0.6)',
-  cardHover: 'rgba(255,255,255,0.02)',
-  toggleBg: '#16162a', toggleBorder: '#2a2a45', toggleShadow: '0 4px 20px rgba(0,0,0,0.4)',
-  textarea: 'rgba(8,8,16,0.4)',
-}
-const lightTheme = {
-  page: '#f0f0f8', sidebar: '#f8f8fc', panel: '#ffffff',
-  border: '#e0e0ee', borderSubtle: '#eaeaf4',
-  text: '#1a1a2e', textMuted: '#666688', textFaint: '#aaaacc', textDim: '#888899',
-  dot: '#d8d8ee', input: '#ffffff', sectionBg: 'rgba(240,240,248,0.7)',
-  cardHover: 'rgba(0,0,0,0.015)',
-  toggleBg: '#ffffff', toggleBorder: '#e0e0ee', toggleShadow: '0 4px 20px rgba(0,0,0,0.1)',
-  textarea: 'rgba(248,248,252,0.6)',
-}
-
-// ─── Type Colors ─────────────────────────────────────────────────────
 function typeColor(type) {
   const map = { string: "#4ade80", number: "#60a5fa", boolean: "#f472b6", null: "#a78bfa", object: "#fbbf24", array: "#fb923c" };
   return map[type] || "#e2e2f0";
@@ -60,7 +41,6 @@ function typeBg(type) {
   const map = { string: "rgba(74,222,128,0.1)", number: "rgba(96,165,250,0.1)", boolean: "rgba(244,114,182,0.1)", null: "rgba(167,139,250,0.1)", object: "rgba(251,191,36,0.1)", array: "rgba(251,146,60,0.1)" };
   return map[type] || "rgba(226,232,240,0.06)";
 }
-
 function getType(val) {
   if (val === null) return "null";
   if (Array.isArray(val)) return "array";
@@ -88,8 +68,8 @@ function collectStats(obj) {
   walk(obj); return { strings, numbers, booleans, nulls, objects, arrays, keys };
 }
 
-// ─── Tree Node ───────────────────────────────────────────────────────
-function TreeNode({ keyName, value, depth, path, searchQuery, onCopyPath, t }) {
+function TreeNode({ keyName, value, depth, path, searchQuery, onCopyPath }) {
+  const { theme: t } = useTheme()
   const type = getType(value);
   const isComplex = type === "object" || type === "array";
   const [collapsed, setCollapsed] = useState(depth > 2);
@@ -116,16 +96,13 @@ function TreeNode({ keyName, value, depth, path, searchQuery, onCopyPath, t }) {
         onMouseLeave={e => !matchesSearch && (e.currentTarget.style.background = "transparent")}
         onClick={isComplex ? () => setCollapsed(!collapsed) : undefined}
       >
-        {isComplex ? (
-          <span style={{ color: t.textFaint, fontSize: 10, width: 12, textAlign: "center", display: "inline-block", transition: "transform 0.2s", transform: collapsed ? "rotate(-90deg)" : "rotate(0)" }}>▼</span>
-        ) : <span style={{ width: 12, display: "inline-block" }} />}
+        {isComplex
+          ? <span style={{ color: t.textFaint, fontSize: 10, width: 12, textAlign: "center", display: "inline-block", transition: "transform 0.2s", transform: collapsed ? "rotate(-90deg)" : "rotate(0)" }}>▼</span>
+          : <span style={{ width: 12, display: "inline-block" }} />}
 
         {keyName !== undefined && (
           <span>
-            <span style={{ color: '#6366f1', fontSize: 12, cursor: "pointer" }}
-              onClick={e => { e.stopPropagation(); onCopyPath(fullPath); }}
-              title="Click to copy path"
-            >{keyName}</span>
+            <span style={{ color: '#6366f1', fontSize: 12, cursor: "pointer" }} onClick={e => { e.stopPropagation(); onCopyPath(fullPath); }} title="Click to copy path">{keyName}</span>
             <span style={{ color: t.textFaint, fontSize: 12 }}>: </span>
           </span>
         )}
@@ -144,7 +121,7 @@ function TreeNode({ keyName, value, depth, path, searchQuery, onCopyPath, t }) {
       {isComplex && !collapsed && (
         <div>
           {Object.entries(value).map(([k, v]) => (
-            <TreeNode key={k} keyName={type === "array" ? Number(k) : k} value={v} depth={depth + 1} path={fullPath} searchQuery={searchQuery} onCopyPath={onCopyPath} t={t} />
+            <TreeNode key={k} keyName={type === "array" ? Number(k) : k} value={v} depth={depth + 1} path={fullPath} searchQuery={searchQuery} onCopyPath={onCopyPath} />
           ))}
           <div style={{ marginLeft: 0, padding: "3px 6px 3px 24px", color: typeColor(type), fontSize: 12, fontFamily: "'IBM Plex Mono', monospace" }}>
             {type === "array" ? "]" : "}"}
@@ -155,16 +132,14 @@ function TreeNode({ keyName, value, depth, path, searchQuery, onCopyPath, t }) {
   );
 }
 
-// ─── Syntax Highlight ────────────────────────────────────────────────
-function SyntaxHighlight({ json, t }) {
+function SyntaxHighlight({ json }) {
+  const { theme: t } = useTheme()
   const highlighted = json
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
       let color = typeColor("number");
-      if (/^"/.test(match)) {
-        if (/:$/.test(match)) color = '#a78bfa';
-        else color = typeColor("string");
-      } else if (/true|false/.test(match)) color = typeColor("boolean");
+      if (/^"/.test(match)) { color = /:$/.test(match) ? '#a78bfa' : typeColor("string"); }
+      else if (/true|false/.test(match)) color = typeColor("boolean");
       else if (/null/.test(match)) color = typeColor("null");
       return `<span style="color:${color}">${match}</span>`;
     });
@@ -174,35 +149,8 @@ function SyntaxHighlight({ json, t }) {
   );
 }
 
-// ─── DevKit Logo SVG ─────────────────────────────────────────────────
-const DevKitLogo = ({ id }) => (
-  <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-    <defs>
-      <linearGradient id={`${id}g`} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#4f46e5"/><stop offset="100%" stopColor="#7c3aed"/>
-      </linearGradient>
-      <radialGradient id={`${id}h`} cx="30%" cy="25%" r="60%">
-        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18"/><stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
-      </radialGradient>
-    </defs>
-    <rect width="120" height="120" rx="28" fill={`url(#${id}g)`}/>
-    <rect width="120" height="120" rx="28" fill={`url(#${id}h)`}/>
-    <rect x="1" y="1" width="118" height="118" rx="27.5" fill="none" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.5"/>
-    <path d="M42 36 L22 60 L42 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95"/>
-    <path d="M78 36 L98 60 L78 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95"/>
-    <line x1="66" y1="30" x2="54" y2="90" stroke="#ffffff" strokeWidth="6" strokeLinecap="round" strokeOpacity="0.6"/>
-  </svg>
-)
+const mono = "'IBM Plex Mono', monospace";
 
-const LogoutIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
-
-// ─── Main Component ───────────────────────────────────────────────────
 export default function JSONForge() {
   const [input, setInput] = useState(SAMPLE_JSON);
   const [parsed, setParsed] = useState(null);
@@ -214,12 +162,10 @@ export default function JSONForge() {
   const [stats, setStats] = useState(null);
   const [sortKeys, setSortKeys] = useState(false);
   const [output, setOutput] = useState("");
-  const [isDark, setIsDark] = useState(false);
+  const { isDark, theme: t, toggleTheme } = useTheme()
   const fileRef = useRef();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const t = isDark ? darkTheme : lightTheme;
-  const mono = "'IBM Plex Mono', monospace";
 
   const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 2500); };
 
@@ -285,21 +231,19 @@ export default function JSONForge() {
         <div style={{ position: 'fixed', bottom: '-20%', left: '10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,191,36,0.04) 0%, transparent 70%)', pointerEvents: 'none', animation: 'pulse 10s ease-in-out infinite 2s', zIndex: 0 }} />
       </>}
 
-      {/* ── SIDEBAR ── */}
+      {/* SIDEBAR */}
       <aside style={{ width: '260px', minWidth: '220px', background: t.sidebar, borderRight: `1px solid ${t.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 10, transition: 'background 0.3s ease, border-color 0.3s ease' }}>
 
         <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '18px 16px 14px', borderBottom: `1px solid ${t.border}`, cursor: 'pointer' }}>
-          <DevKitLogo id="jf" />
+          <DevKitLogo size={28} />
           <span style={{ fontSize: '15px', fontWeight: '700', color: t.text, letterSpacing: '0.4px' }}>DevKit</span>
         </div>
 
-        {/* Tool badge */}
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', margin: '12px 16px 14px', background: '#fbbf2411', border: '1px solid #fbbf2433', borderRadius: '20px', color: '#fbbf24', fontSize: '11px', padding: '4px 12px', fontFamily: mono, width: 'fit-content' }}>
           <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#fbbf24', animation: 'blink 2s ease-in-out infinite', flexShrink: 0 }} />
           JSON Forge
         </div>
 
-        {/* Actions */}
         <div style={{ padding: '0 8px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <div style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, padding: '4px 8px 8px', textTransform: 'uppercase', fontFamily: mono }}>ACTIONS</div>
 
@@ -309,7 +253,8 @@ export default function JSONForge() {
             { label: 'Import File', icon: '⬆', onClick: () => fileRef.current.click(), disabled: false },
             { label: 'Download', icon: '⬇', onClick: download, disabled: !parsed },
           ].map(b => (
-            <button key={b.label} onClick={b.onClick} disabled={b.disabled} style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', background: 'transparent', border: 'none', borderLeft: '2px solid transparent', borderRadius: '6px', color: b.disabled ? t.textDim : t.textMuted, fontSize: '13px', padding: '8px 10px', cursor: b.disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.15s', opacity: b.disabled ? 0.4 : 1 }}
+            <button key={b.label} onClick={b.onClick} disabled={b.disabled}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', background: 'transparent', border: 'none', borderLeft: '2px solid transparent', borderRadius: '6px', color: b.disabled ? t.textDim : t.textMuted, fontSize: '13px', padding: '8px 10px', cursor: b.disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.15s', opacity: b.disabled ? 0.4 : 1 }}
               onMouseEnter={e => { if (!b.disabled) { e.currentTarget.style.background = 'rgba(99,102,241,0.08)'; e.currentTarget.style.borderLeftColor = '#6366f1'; e.currentTarget.style.color = '#a78bfa'; } }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderLeftColor = 'transparent'; e.currentTarget.style.color = b.disabled ? t.textDim : t.textMuted; }}>
               <span style={{ fontSize: '11px', fontFamily: mono, width: '18px', textAlign: 'center' }}>{b.icon}</span>
@@ -319,20 +264,17 @@ export default function JSONForge() {
 
           <div style={{ height: '1px', background: t.border, margin: '8px 8px' }} />
 
-          {/* View mode */}
           <div style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, padding: '4px 8px 8px', textTransform: 'uppercase', fontFamily: mono }}>VIEW</div>
           {['tree', 'code', 'stats'].map(v => (
             <button key={v} onClick={() => setView(v)} style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', background: view === v ? 'rgba(99,102,241,0.08)' : 'transparent', border: 'none', borderLeft: view === v ? '2px solid #6366f1' : '2px solid transparent', borderRadius: '6px', color: view === v ? '#a78bfa' : t.textMuted, fontSize: '13px', padding: '8px 10px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.15s' }}>
-              <span style={{ fontSize: '10px', fontFamily: mono, width: '18px', textAlign: 'center' }}>
-                {v === 'tree' ? '🌲' : v === 'code' ? '</>' : '≡'}
-              </span>
+              <span style={{ fontSize: '10px', fontFamily: mono, width: '18px', textAlign: 'center' }}>{v === 'tree' ? '🌲' : v === 'code' ? '</>' : '≡'}</span>
               {v.charAt(0).toUpperCase() + v.slice(1)}
             </button>
           ))}
 
           <div style={{ height: '1px', background: t.border, margin: '8px 8px' }} />
 
-          {/* Sort keys toggle */}
+          {/* Sort keys */}
           <div style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '12px', color: t.textMuted }}>Sort Keys</span>
             <div onClick={() => handleSortKeys(!sortKeys)} style={{ width: '34px', height: '18px', borderRadius: '9px', background: sortKeys ? '#6366f1' : t.border, position: 'relative', transition: 'background 0.2s', cursor: 'pointer', flexShrink: 0 }}>
@@ -340,7 +282,7 @@ export default function JSONForge() {
             </div>
           </div>
 
-          {/* Indent selector */}
+          {/* Indent */}
           <div style={{ padding: '6px 10px' }}>
             <div style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, marginBottom: '8px', textTransform: 'uppercase', fontFamily: mono }}>INDENT</div>
             <div style={{ display: 'flex', gap: '4px' }}>
@@ -350,7 +292,7 @@ export default function JSONForge() {
             </div>
           </div>
 
-          {/* Stats mini */}
+          {/* Quick stats */}
           {stats && (
             <div style={{ margin: '8px', padding: '10px', background: isDark ? '#fbbf2408' : '#fbbf2406', border: '1px solid #fbbf2422', borderRadius: '10px' }}>
               <div style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, marginBottom: '8px', fontFamily: mono }}>QUICK STATS</div>
@@ -382,7 +324,9 @@ export default function JSONForge() {
                 <div style={{ fontSize: '12px', fontWeight: '600', color: t.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.username}</div>
                 <div style={{ fontSize: '10px', color: t.textFaint, fontFamily: mono, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email || ''}</div>
               </div>
-              <button onClick={logout} title="Logout" style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '5px', color: t.textMuted, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', flexShrink: 0, transition: 'all 0.15s' }}><LogoutIcon /></button>
+              <button onClick={logout} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '5px', color: t.textMuted, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
             </div>
           ) : (
             <button onClick={() => navigate('/login')} style={{ width: '100%', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none', borderRadius: '7px', color: '#fff', fontSize: '12px', fontWeight: '600', padding: '8px', cursor: 'pointer', fontFamily: 'inherit' }}>Sign in</button>
@@ -390,7 +334,7 @@ export default function JSONForge() {
         </div>
       </aside>
 
-      {/* ── MAIN CONTENT ── */}
+      {/* MAIN CONTENT */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 10 }}>
 
         {/* Top bar */}
@@ -402,7 +346,6 @@ export default function JSONForge() {
             {parsed && !error && <span style={{ fontSize: '11px', color: '#4ade80', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)', padding: '2px 8px', borderRadius: '20px', fontFamily: mono }}>✓ Valid JSON</span>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {/* Search (tree view) */}
             {view === 'tree' && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: t.input, border: `1px solid ${t.border}`, borderRadius: '7px', padding: '6px 10px' }}>
                 <span style={{ color: t.textFaint, fontSize: '11px' }}>🔍</span>
@@ -410,18 +353,18 @@ export default function JSONForge() {
                 {searchQuery && <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: t.textFaint, cursor: 'pointer', fontSize: '12px', padding: 0 }}>✕</button>}
               </div>
             )}
-            <button onClick={() => copy(output)} disabled={!output} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '7px', color: t.textMuted, fontSize: '12px', padding: '6px 12px', cursor: !output ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: !output ? 0.4 : 1, transition: 'all 0.15s' }}>⎘ Copy</button>
+            <button onClick={() => copy(output)} disabled={!output} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '7px', color: t.textMuted, fontSize: '12px', padding: '6px 12px', cursor: !output ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: !output ? 0.4 : 1 }}>⎘ Copy</button>
           </div>
         </div>
 
-        {/* Main split pane */}
+        {/* Split pane */}
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
 
           {/* Input */}
           <div style={{ width: '44%', flexShrink: 0, borderRight: `1px solid ${t.border}`, display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '8px 16px', borderBottom: `1px solid ${t.border}`, background: isDark ? 'rgba(8,8,16,0.5)' : 'rgba(248,248,252,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <span style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, textTransform: 'uppercase', fontFamily: mono }}>Input</span>
-              <button onClick={() => { setInput(""); setParsed(null); setError(null); setOutput(""); setStats(null); }} style={{ fontSize: '10px', color: t.textFaint, background: 'none', border: `1px solid ${t.border}`, padding: '3px 8px', borderRadius: '5px', cursor: 'pointer', fontFamily: mono, transition: 'all 0.15s' }}>Clear</button>
+              <button onClick={() => { setInput(""); setParsed(null); setError(null); setOutput(""); setStats(null); }} style={{ fontSize: '10px', color: t.textFaint, background: 'none', border: `1px solid ${t.border}`, padding: '3px 8px', borderRadius: '5px', cursor: 'pointer', fontFamily: mono }}>Clear</button>
             </div>
             <textarea value={input} onChange={e => handleInput(e.target.value)} placeholder="Paste your JSON here..." spellCheck={false}
               style={{ flex: 1, background: t.textarea, border: 'none', outline: 'none', color: error ? "#fca5a5" : t.text, fontFamily: mono, fontSize: 12, padding: 16, resize: 'none', lineHeight: 1.8, backdropFilter: 'blur(4px)', transition: 'background 0.3s, color 0.3s' }} />
@@ -437,23 +380,19 @@ export default function JSONForge() {
             <div style={{ padding: '8px 16px', borderBottom: `1px solid ${t.border}`, background: isDark ? 'rgba(8,8,16,0.5)' : 'rgba(248,248,252,0.8)', fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, textTransform: 'uppercase', flexShrink: 0, fontFamily: mono }}>
               {view === 'tree' ? 'Tree Explorer' : view === 'code' ? 'Formatted Output' : 'Statistics'}
             </div>
-
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {!parsed && !error && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ fontSize: '42px', opacity: 0.15 }}>{ }</div>
+                  <div style={{ fontSize: '42px', opacity: 0.15 }}>{'{}'}</div>
                   <span style={{ color: t.textFaint, fontSize: '13px', fontFamily: mono }}>Paste JSON on the left to begin</span>
                 </div>
               )}
-
               {parsed && view === 'tree' && (
                 <div style={{ padding: 16 }}>
-                  <TreeNode keyName="root" value={parsed} depth={0} path="" searchQuery={searchQuery} onCopyPath={copyPath} t={t} />
+                  <TreeNode keyName="root" value={parsed} depth={0} path="" searchQuery={searchQuery} onCopyPath={copyPath} />
                 </div>
               )}
-
-              {parsed && view === 'code' && <SyntaxHighlight json={output} t={t} />}
-
+              {parsed && view === 'code' && <SyntaxHighlight json={output} />}
               {parsed && view === 'stats' && (
                 <div style={{ padding: 20 }}>
                   <div style={{ marginBottom: '12px', fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, textTransform: 'uppercase', fontFamily: mono }}>JSON Statistics</div>
@@ -465,7 +404,6 @@ export default function JSONForge() {
                       </div>
                     ))}
                   </div>
-
                   <div style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, textTransform: 'uppercase', fontFamily: mono, marginBottom: '14px' }}>Type Distribution</div>
                   {[
                     { label: "Strings", val: stats.strings, type: "string" },
@@ -495,7 +433,7 @@ export default function JSONForge() {
       </div>
 
       {/* Theme toggle */}
-      <button onClick={() => setIsDark(d => !d)} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'} style={{ position: 'fixed', bottom: '28px', right: '28px', width: '44px', height: '44px', borderRadius: '50%', background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, boxShadow: `${t.toggleShadow}, 0 0 0 1px ${t.toggleBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 999, fontSize: '19px', transition: 'all 0.3s ease', backdropFilter: 'blur(8px)' }}>
+      <button onClick={toggleTheme} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'} style={{ position: 'fixed', bottom: '28px', right: '28px', width: '44px', height: '44px', borderRadius: '50%', background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, boxShadow: t.toggleShadow, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 999, fontSize: '19px', transition: 'all 0.3s ease', backdropFilter: 'blur(8px)' }}>
         {isDark ? '☀️' : '🌙'}
       </button>
 
@@ -512,7 +450,6 @@ export default function JSONForge() {
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${isDark ? '#1e1e30' : '#d0d0e8'}; border-radius: 4px; }
         textarea::placeholder { color: ${isDark ? '#2a2a45' : '#aaaacc'}; }
         input::placeholder { color: ${isDark ? '#2a2a45' : '#aaaacc'}; }

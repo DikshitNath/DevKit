@@ -1,24 +1,9 @@
 import { useState, useMemo } from 'react'
 import axios from 'axios'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-
-const darkTheme = {
-  page: '#080810', sidebar: '#0a0a16', panel: '#0c0c18',
-  border: '#1e1e30', borderSubtle: '#13131e',
-  text: '#e2e2f0', textMuted: '#4a4a7a', textFaint: '#2a2a45', textDim: '#3a3a5c',
-  dot: '#1e1e35', input: '#0c0c18', sectionBg: 'rgba(8,8,16,0.6)',
-  navItemActive: 'rgba(6,182,212,0.08)',
-  toggleBg: '#16162a', toggleBorder: '#2a2a45', toggleShadow: '0 4px 20px rgba(0,0,0,0.4)',
-}
-const lightTheme = {
-  page: '#f0f0f8', sidebar: '#f8f8fc', panel: '#ffffff',
-  border: '#e0e0ee', borderSubtle: '#eaeaf4',
-  text: '#1a1a2e', textMuted: '#666688', textFaint: '#aaaacc', textDim: '#888899',
-  dot: '#d8d8ee', input: '#ffffff', sectionBg: 'rgba(240,240,248,0.7)',
-  navItemActive: 'rgba(6,182,212,0.06)',
-  toggleBg: '#ffffff', toggleBorder: '#e0e0ee', toggleShadow: '0 4px 20px rgba(0,0,0,0.1)',
-}
+import { useTheme } from '../../context/ThemeContext'
+import DevKitLogo from '../../components/ui/DevKitLogo'
 
 const PRESETS = [
   { label: 'Email', pattern: '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}', flags: 'g' },
@@ -31,51 +16,24 @@ const PRESETS = [
 
 const MATCH_COLORS = ['#06b6d4', '#a78bfa', '#fb923c', '#4ade80']
 const ACCENT = '#06b6d4'
+const mono = "'IBM Plex Mono', monospace"
 
 function escHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>')
 }
 
-const DevKitLogo = ({ id }) => (
-  <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-    <defs>
-      <linearGradient id={`${id}g`} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#4f46e5"/><stop offset="100%" stopColor="#7c3aed"/>
-      </linearGradient>
-      <radialGradient id={`${id}h`} cx="30%" cy="25%" r="60%">
-        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18"/><stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
-      </radialGradient>
-    </defs>
-    <rect width="120" height="120" rx="28" fill={`url(#${id}g)`}/>
-    <rect width="120" height="120" rx="28" fill={`url(#${id}h)`}/>
-    <rect x="1" y="1" width="118" height="118" rx="27.5" fill="none" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.5"/>
-    <path d="M42 36 L22 60 L42 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95"/>
-    <path d="M78 36 L98 60 L78 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95"/>
-    <line x1="66" y1="30" x2="54" y2="90" stroke="#ffffff" strokeWidth="6" strokeLinecap="round" strokeOpacity="0.6"/>
-  </svg>
-)
-
-const LogoutIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
-
 export default function RegexTester() {
   const [pattern, setPattern] = useState('(\\w+)@(\\w+)\\.com')
   const [flags, setFlags] = useState('g')
   const [testText, setTestText] = useState('Contact us at hello@devkit.com or support@example.com for help.\nOur team is available at team@company.org')
-  const [isDark, setIsDark] = useState(false)
   const [aiMode, setAiMode] = useState(null)
   const [aiPrompt, setAiPrompt] = useState('')
   const [aiOutput, setAiOutput] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+  const { isDark, theme: t, toggleTheme } = useTheme()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const t = isDark ? darkTheme : lightTheme
 
   const result = useMemo(() => {
     if (!pattern) return { valid: true, matches: [], highlighted: escHtml(testText), count: 0 }
@@ -125,11 +83,8 @@ export default function RegexTester() {
   const toggleFlag = (f) => setFlags(prev => prev.includes(f) ? prev.replace(f, '') : prev + f)
   const copyPattern = () => { navigator.clipboard.writeText(`/${pattern}/${flags}`); setCopied(true); setTimeout(() => setCopied(false), 1500) }
 
-  const mono = "'IBM Plex Mono', monospace"
-  const syne = "'Syne', sans-serif"
-
   return (
-    <div style={{ height: '100vh', display: 'flex', background: t.page, color: t.text, fontFamily: syne, overflow: 'hidden', position: 'relative', transition: 'background 0.3s ease, color 0.3s ease' }}>
+    <div style={{ height: '100vh', display: 'flex', background: t.page, color: t.text, fontFamily: "'Syne', sans-serif", overflow: 'hidden', position: 'relative', transition: 'background 0.3s ease, color 0.3s ease' }}>
 
       <div style={{ position: 'fixed', inset: 0, backgroundImage: `radial-gradient(circle, ${t.dot} 1px, transparent 1px)`, backgroundSize: '28px 28px', opacity: 0.55, pointerEvents: 'none', zIndex: 0 }} />
       {isDark && <>
@@ -140,7 +95,7 @@ export default function RegexTester() {
       {/* SIDEBAR */}
       <aside style={{ width: '260px', minWidth: '220px', background: t.sidebar, borderRight: `1px solid ${t.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 10, transition: 'background 0.3s ease, border-color 0.3s ease' }}>
         <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '18px 16px 14px', borderBottom: `1px solid ${t.border}`, cursor: 'pointer' }}>
-          <DevKitLogo id="rx" />
+          <DevKitLogo size={28} />
           <span style={{ fontSize: '15px', fontWeight: '700', color: t.text, letterSpacing: '0.4px' }}>DevKit</span>
         </div>
 
@@ -179,7 +134,9 @@ export default function RegexTester() {
                 <div style={{ fontSize: '12px', fontWeight: '600', color: t.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.username}</div>
                 <div style={{ fontSize: '10px', color: t.textFaint, fontFamily: mono, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email || ''}</div>
               </div>
-              <button onClick={logout} title="Logout" style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '5px', color: t.textMuted, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', flexShrink: 0, transition: 'all 0.15s' }}><LogoutIcon /></button>
+              <button onClick={logout} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '5px', color: t.textMuted, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
             </div>
           ) : (
             <button onClick={() => navigate('/login')} style={{ width: '100%', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none', borderRadius: '7px', color: '#fff', fontSize: '12px', fontWeight: '600', padding: '8px', cursor: 'pointer', fontFamily: 'inherit' }}>Sign in</button>
@@ -190,20 +147,20 @@ export default function RegexTester() {
       {/* MAIN */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 10 }}>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: `1px solid ${t.border}`, background: t.sectionBg, backdropFilter: 'blur(12px)', flexShrink: 0, transition: 'background 0.3s, border-color 0.3s' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: `1px solid ${t.border}`, background: t.sectionBg, backdropFilter: 'blur(12px)', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '13px', fontWeight: '700', color: t.text }}>Regex Tester</span>
             <span style={{ fontSize: '11px', color: t.textMuted }}>— test, match, explain</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <button onClick={() => { setAiMode(m => m === 'generate' ? null : 'generate'); setAiOutput('') }} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: aiMode === 'generate' ? '#a78bfa18' : 'transparent', border: `1px solid ${aiMode === 'generate' ? '#a78bfa44' : t.border}`, borderRadius: '7px', color: aiMode === 'generate' ? '#a78bfa' : t.textMuted, fontSize: '12px', padding: '6px 12px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
+            <button onClick={() => { setAiMode(m => m === 'generate' ? null : 'generate'); setAiOutput('') }} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: aiMode === 'generate' ? '#a78bfa18' : 'transparent', border: `1px solid ${aiMode === 'generate' ? '#a78bfa44' : t.border}`, borderRadius: '7px', color: aiMode === 'generate' ? '#a78bfa' : t.textMuted, fontSize: '12px', padding: '6px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>
               <span style={{ color: '#a78bfa', fontSize: '10px' }}>✦</span> Generate
             </button>
-            <button onClick={() => handleAI('explain')} disabled={!pattern || aiLoading} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '7px', color: t.textMuted, fontSize: '12px', padding: '6px 12px', cursor: !pattern ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: !pattern ? 0.4 : 1, transition: 'all 0.15s' }}>
+            <button onClick={() => handleAI('explain')} disabled={!pattern || aiLoading} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '7px', color: t.textMuted, fontSize: '12px', padding: '6px 12px', cursor: !pattern ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: !pattern ? 0.4 : 1 }}>
               <span style={{ color: '#a78bfa', fontSize: '10px' }}>✦</span> Explain
             </button>
             <div style={{ width: '1px', height: '20px', background: t.border }} />
-            <button onClick={copyPattern} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '7px', color: copied ? '#4ade80' : t.textMuted, fontSize: '12px', padding: '6px 12px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>{copied ? '✓ Copied' : '⎘ Copy'}</button>
+            <button onClick={copyPattern} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '7px', color: copied ? '#4ade80' : t.textMuted, fontSize: '12px', padding: '6px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? '✓ Copied' : '⎘ Copy'}</button>
           </div>
         </div>
 
@@ -211,7 +168,7 @@ export default function RegexTester() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 20px', borderBottom: `1px solid ${t.border}`, background: isDark ? 'rgba(8,8,22,0.85)' : 'rgba(244,244,252,0.9)', backdropFilter: 'blur(12px)', flexShrink: 0 }}>
             <span style={{ fontSize: '11px', fontWeight: '700', color: '#a78bfa', whiteSpace: 'nowrap', fontFamily: mono }}>✦ DESCRIBE PATTERN:</span>
             <input value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} onKeyDown={e => e.key === 'Enter' && aiPrompt && handleAI('generate')} placeholder='"match all phone numbers with country code"' style={{ flex: 1, background: t.input, border: `1px solid ${t.border}`, borderRadius: '7px', color: t.text, fontSize: '12px', padding: '8px 12px', outline: 'none', fontFamily: mono }} />
-            <button onClick={() => handleAI('generate')} disabled={aiLoading || !aiPrompt} style={{ background: 'linear-gradient(135deg, #a78bfa, #6366f1)', color: '#fff', border: 'none', borderRadius: '7px', padding: '8px 18px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', opacity: !aiPrompt ? 0.5 : 1, fontFamily: 'inherit', whiteSpace: 'nowrap', boxShadow: '0 0 16px rgba(99,102,241,0.2)' }}>{aiLoading ? 'Generating...' : 'Generate'}</button>
+            <button onClick={() => handleAI('generate')} disabled={aiLoading || !aiPrompt} style={{ background: 'linear-gradient(135deg, #a78bfa, #6366f1)', color: '#fff', border: 'none', borderRadius: '7px', padding: '8px 18px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', opacity: !aiPrompt ? 0.5 : 1, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>{aiLoading ? 'Generating...' : 'Generate'}</button>
             <button onClick={() => setAiMode(null)} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '7px', color: t.textMuted, fontSize: '12px', padding: '6px 10px', cursor: 'pointer' }}>✕</button>
           </div>
         )}
@@ -222,7 +179,7 @@ export default function RegexTester() {
             <input value={pattern} onChange={e => { setPattern(e.target.value); setAiOutput('') }} placeholder="Enter regex pattern..." style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: ACCENT, fontSize: '15px', fontFamily: mono }} />
             <span style={{ color: t.textFaint, fontSize: '20px', fontFamily: mono, userSelect: 'none', lineHeight: 1 }}>/</span>
             {['g', 'i', 'm', 's'].map(f => (
-              <button key={f} onClick={() => toggleFlag(f)} style={{ width: '26px', height: '26px', borderRadius: '6px', background: flags.includes(f) ? '#6366f118' : 'transparent', border: `1px solid ${flags.includes(f) ? '#6366f144' : t.border}`, color: flags.includes(f) ? '#a78bfa' : t.textFaint, fontSize: '11px', fontWeight: '700', cursor: 'pointer', fontFamily: mono, transition: 'all 0.15s' }}>{f}</button>
+              <button key={f} onClick={() => toggleFlag(f)} style={{ width: '26px', height: '26px', borderRadius: '6px', background: flags.includes(f) ? '#6366f118' : 'transparent', border: `1px solid ${flags.includes(f) ? '#6366f144' : t.border}`, color: flags.includes(f) ? '#a78bfa' : t.textFaint, fontSize: '11px', fontWeight: '700', cursor: 'pointer', fontFamily: mono }}>{f}</button>
             ))}
           </div>
           {result.error && <div style={{ marginTop: '7px', color: '#f87171', fontSize: '11px', fontFamily: mono }}>✕ {result.error}</div>}
@@ -233,11 +190,11 @@ export default function RegexTester() {
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${t.border}`, minWidth: 0 }}>
             <div style={{ padding: '8px 16px', borderBottom: `1px solid ${t.border}`, background: isDark ? 'rgba(8,8,16,0.5)' : 'rgba(248,248,252,0.8)', fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, textTransform: 'uppercase', flexShrink: 0, fontFamily: mono }}>Test String</div>
-            <textarea value={testText} onChange={e => setTestText(e.target.value)} spellCheck={false} style={{ flex: 1, background: t.page, border: 'none', outline: 'none', color: t.text, fontSize: '13px', fontFamily: mono, lineHeight: '1.8', padding: '16px', resize: 'none', transition: 'background 0.3s' }} />
+            <textarea value={testText} onChange={e => setTestText(e.target.value)} spellCheck={false} style={{ flex: 1, background: t.page, border: 'none', outline: 'none', color: t.text, fontSize: '13px', fontFamily: mono, lineHeight: '1.8', padding: '16px', resize: 'none' }} />
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             <div style={{ padding: '8px 16px', borderBottom: `1px solid ${t.border}`, background: isDark ? 'rgba(8,8,16,0.5)' : 'rgba(248,248,252,0.8)', fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px', color: t.textFaint, textTransform: 'uppercase', flexShrink: 0, fontFamily: mono }}>Highlighted Matches</div>
-            <div style={{ flex: 1, padding: '16px', fontSize: '13px', fontFamily: mono, lineHeight: '1.8', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: t.text, overflowY: 'auto', background: t.page, transition: 'background 0.3s' }} dangerouslySetInnerHTML={{ __html: result.highlighted }} />
+            <div style={{ flex: 1, padding: '16px', fontSize: '13px', fontFamily: mono, lineHeight: '1.8', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: t.text, overflowY: 'auto', background: t.page }} dangerouslySetInnerHTML={{ __html: result.highlighted }} />
           </div>
         </div>
 
@@ -267,7 +224,7 @@ export default function RegexTester() {
         )}
       </div>
 
-      <button onClick={() => setIsDark(d => !d)} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'} style={{ position: 'fixed', bottom: '28px', right: '28px', width: '44px', height: '44px', borderRadius: '50%', background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, boxShadow: `${t.toggleShadow}, 0 0 0 1px ${t.toggleBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 999, fontSize: '19px', transition: 'all 0.3s ease', backdropFilter: 'blur(8px)' }}>
+      <button onClick={toggleTheme} style={{ position: 'fixed', bottom: '28px', right: '28px', width: '44px', height: '44px', borderRadius: '50%', background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, boxShadow: t.toggleShadow, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 999, fontSize: '19px', transition: 'all 0.3s ease', backdropFilter: 'blur(8px)' }}>
         {isDark ? '☀️' : '🌙'}
       </button>
 
@@ -275,7 +232,6 @@ export default function RegexTester() {
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${isDark ? '#1e1e30' : '#d0d0e8'}; border-radius: 4px; }
         input::placeholder { color: ${isDark ? '#2a2a45' : '#aaaacc'}; }
         textarea::placeholder { color: ${isDark ? '#2a2a45' : '#aaaacc'}; }

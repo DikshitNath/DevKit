@@ -1,10 +1,16 @@
-# 🚀 DevKit – All‑In‑One Developer Toolbox
+![DevKit](https://ik.imagekit.io/myBlogApp/devkit-logo.svg)
+
+# DevKit – All‑In‑One Developer Toolbox
 
 **DevKit** is a full‑stack, open‑source toolkit designed to help developers build, debug and prototype faster. It combines a modern React/Vite front‑end with an Express.js/MongoDB back‑end and integrates AI‑powered helpers to make everyday tasks easier.
 
 > _"A Swiss Army knife for developers, inside your browser."_
 
 ---
+
+[![React](https://img.shields.io/badge/React-18-61dafb?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-5-646cff?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Monaco](https://img.shields.io/badge/Monaco_Editor-latest-0078d4?style=flat-square&logo=visualstudiocode&logoColor=white)](https://microsoft.github.io/monaco-editor/)
 
 ## ✨ Features
 
@@ -13,10 +19,10 @@
 | ✅ | **API Tester** | Send authenticated requests, set headers/body, view responses, track history and get AI‑generated explanations. |
 | ✅ | **Snippet Manager** | Create, edit and organize code snippets with language tags, search, syntax colors and Monaco editor. Publish snippets publicly. |
 | ✅ | **JWT Decoder** | Inspect JSON Web Tokens (header, payload, expiration). |
+| ✅ | **JSON Formatter** | Pretty‑print, validate, explore JSON trees, collect statistics and export. |
+| ✅ | **Regex Tester** | Live regex evaluation with match highlighting, capture groups, and AI explanations. |
+| ✅ | **Color Palette** | Generate harmonies, convert between formats (hex/rgb/hsl), save palettes, and AI palette generation. |
 | ✅ | **AI Generators** | Auto‑generate JSON request bodies, explain API responses and create code snippets using Google Gemini/GenAI. |
-| 🔜 | **JSON Formatter** | Pretty‑print, validate and diff JSON. |
-| 🔜 | **Regex Tester** | Live regex evaluation with match highlighting and documentation. |
-| 🔜 | **Color Palette** | Generate and convert between color formats. |
 
 *Tools marked 🔜 are planned for future releases.*
 
@@ -168,10 +174,14 @@ The React application serves as both the UI and a thin client for the backend AP
 ### Navigation
 
 - **Home** – marketing landing page with links to tools.
+- **Login/Register** – user authentication with form validation and password strength indicator.
 - **API Tester** – build and send HTTP requests across domains.
 - **Snippet Manager** – CRUD interface backed by Monaco editor.
-- **Login/Register** – user authentication.
-- Footer and theme toggle are global components.
+- **JSON Formatter** – tree explorer, syntax highlighting, statistics and import/export.
+- **Regex Tester** – live pattern testing with presets and AI-powered explanations.
+- **JWT Decoder** – decode and inspect tokens with expiration tracking.
+- **Color Palette** – generate harmonies with multiple modes and color format conversion.
+- Footer and theme toggle are global components (dark/light mode support).
 
 ### API Tester
 
@@ -190,16 +200,61 @@ Features:
 - Public snippets are viewable by anyone via `/api/snippets/public`.
 - AI code generator integrates with the server (`/api/ai/generate-snippet`).
 
+
+### JSON Formatter
+
+- **Paste** JSON or load from file.
+- **Tree Explorer** – interactive view of structure, expandable nodes, search across keys and values.
+- **Code View** – syntax-highlighted formatted JSON with customizable indentation (2 spaces, 4 spaces, or tabs).
+- **Statistics** – see object/array/key counts, type distribution, depth, and file size.
+- **Actions** – prettify, minify, import files, download formatted output.
+- Keys can be sorted alphabetically for consistency.
+
+
+### Regex Tester
+
+- **Live matching** – as you type, see all matches highlighted in the test string with different colors.
+- **Flags** – toggle `g` (global), `i` (case-insensitive), `m` (multiline), `s` (dotall).
+- **Presets** – quick-load common patterns (Email, URL, Phone, IP, Hex Color, Date).
+- **Capture Groups** – view and copy extracted groups from matches.
+- **AI Explain** – describe a pattern and get AI explanation of what it does.
+- **AI Generate** – describe what you want to match and AI generates the regex.
+
+
+### JWT Decoder
+
+- **Paste JWT** – input any encoded token.
+- **Auto-decode** – see Header, Payload, and Signature separated and color-coded.
+- **Claim Table** – view all claims with descriptions (iss, sub, aud, exp, iat, etc.).
+- **Expiry Tracking** – displays if token is valid or expired with countdown.
+- **Timestamp Conversion** – Unix timestamps converted to readable dates.
+- **Copy Utilities** – copy individual claims or entire sections.
+
+
+### Color Palette Generator
+
+- **Base Color** – pick a color via color picker or enter hex. Adjust H, S, L sliders.
+- **Harmony Modes** – Complementary, Triadic, Analogous, Monochromatic, Split Complementary.
+- **Format Conversion** – view colors in Hex, RGB, or HSL format.
+- **Quick Picks** – 12 built-in color samples for fast exploration.
+- **Export CSS** – generate `:root` variables with one click.
+- **Save Palettes** – bookmark up to 8 palettes for quick recall.
+- **AI Palette Generator** – describe a mood/theme ("sunset neon", "forest autumn") and generate a custom palette.
+
+
 ### Authentication Flow
 
-- Register with username, email and password.
-- Upon login, a JWT cookie is stored; `AuthContext` fetches `/api/auth/me` to populate user state.
-- Logout clears cookie and resets context.
+- **Registration** – enter username, email, and password; password strength indicator guides input.
+- **Login** – email and password authentication; upon success, a JWT cookie is stored.
+- `AuthContext` fetches `/api/auth/me` on app load to restore user state.
+- **Logout** – clears cookie and resets user context.
+- All sensitive auth routes protected by `authMiddleware`.
 
 ### Utilities
 
 - `authService.js`, `snippetService.js`, `apiTester.js`, and `aiService.js` encapsulate HTTP interactions.
 - `historyManager.js` persists API Tester logs in `localStorage`.
+- `DevKitLogo` and `TerminalLine` are reusable UI components across pages.
 
 ---
 

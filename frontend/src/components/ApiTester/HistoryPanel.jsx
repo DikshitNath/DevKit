@@ -1,3 +1,4 @@
+import { useTheme } from '../../context/ThemeContext'
 import { getHistory, deleteFromHistory, clearHistory } from '../../utils/historyManager'
 
 const METHOD_COLORS = {
@@ -8,7 +9,8 @@ const METHOD_COLORS = {
   DELETE: '#ef4444',
 }
 
-export default function HistoryPanel({ t, onSelect, refresh }) {
+export default function HistoryPanel({ onSelect, refresh }) {
+  const { theme: t } = useTheme()
   const history = getHistory()
 
   const groupByDate = (entries) => {
@@ -42,18 +44,16 @@ export default function HistoryPanel({ t, onSelect, refresh }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* Clear all */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '6px 12px' }}>
-        <button onClick={() => { clearHistory(); refresh() }} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '10px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", opacity: 0.6, letterSpacing: '0.3px' }}>
+        <button onClick={() => { clearHistory(); refresh() }} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '10px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", opacity: 0.6 }}>
           Clear all
         </button>
       </div>
-
       {Object.entries(grouped).map(([label, entries]) => (
         <div key={label}>
           <div style={{ padding: '8px 16px 4px', fontSize: '10px', letterSpacing: '2px', color: t.textFaint, fontWeight: '600', fontFamily: "'IBM Plex Mono', monospace" }}>{label}</div>
           {entries.map(entry => (
-            <HistoryEntry key={entry.id} t={t} entry={entry} onSelect={onSelect} onDelete={() => { deleteFromHistory(entry.id); refresh() }} />
+            <HistoryEntry key={entry.id} entry={entry} onSelect={onSelect} onDelete={() => { deleteFromHistory(entry.id); refresh() }} />
           ))}
         </div>
       ))}
@@ -61,7 +61,8 @@ export default function HistoryPanel({ t, onSelect, refresh }) {
   )
 }
 
-function HistoryEntry({ t, entry, onSelect, onDelete }) {
+function HistoryEntry({ entry, onSelect, onDelete }) {
+  const { theme: t } = useTheme()
   const { request, response } = entry
   const isSuccess = response.status >= 200 && response.status < 300
   const time = new Date(entry.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
@@ -78,22 +79,16 @@ function HistoryEntry({ t, entry, onSelect, onDelete }) {
       onClick={() => onSelect(entry)}
       onMouseEnter={e => e.currentTarget.style.background = t.historyEntryHover}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden', flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '0.5px', color: METHOD_COLORS[request.method], fontFamily: "'IBM Plex Mono', monospace" }}>
-            {request.method}
-          </span>
+          <span style={{ fontSize: '10px', fontWeight: '700', color: METHOD_COLORS[request.method], fontFamily: "'IBM Plex Mono', monospace" }}>{request.method}</span>
           <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: isSuccess ? '#22c55e' : '#ef4444', flexShrink: 0 }} />
-          <span style={{ fontSize: '10px', fontWeight: '600', color: isSuccess ? '#4ade80' : '#f87171', fontFamily: "'IBM Plex Mono', monospace" }}>
-            {response.status}
-          </span>
+          <span style={{ fontSize: '10px', fontWeight: '600', color: isSuccess ? '#4ade80' : '#f87171', fontFamily: "'IBM Plex Mono', monospace" }}>{response.status}</span>
         </div>
         <div style={{ fontSize: '11px', color: t.textMuted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px', fontFamily: "'IBM Plex Mono', monospace" }}>{displayUrl}</div>
         <div style={{ fontSize: '10px', color: t.textFaint, fontFamily: "'IBM Plex Mono', monospace" }}>{time}</div>
       </div>
-
-      <button onClick={(e) => { e.stopPropagation(); onDelete() }} style={{ background: 'transparent', border: 'none', color: t.textFaint, fontSize: '18px', cursor: 'pointer', padding: '0 4px', lineHeight: 1, transition: 'color 0.15s', flexShrink: 0 }}>×</button>
+      <button onClick={e => { e.stopPropagation(); onDelete() }} style={{ background: 'transparent', border: 'none', color: t.textFaint, fontSize: '18px', cursor: 'pointer', padding: '0 4px', lineHeight: 1, flexShrink: 0 }}>×</button>
     </div>
   )
 }

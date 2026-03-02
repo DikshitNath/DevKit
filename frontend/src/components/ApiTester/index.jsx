@@ -1,73 +1,15 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import { sendRequest } from '../../utils/apiTester'
+import { saveToHistory } from '../../utils/historyManager'
+import DevKitLogo from '../ui/DevKitLogo'
 import ResponseViewer from './ResponseViewer'
 import HeadersEditor from './HeadersEditor'
 import BodyEditor from './BodyEditor'
-import { saveToHistory } from '../../utils/historyManager'
 import HistoryPanel from './HistoryPanel'
 import AIPanel from './AIPanel'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-
-const darkTheme = {
-  page: '#080810',
-  sidebar: '#0a0a16',
-  border: '#1e1e30',
-  borderSubtle: '#13131e',
-  text: '#e2e2f0',
-  textMuted: '#4a4a7a',
-  textFaint: '#2a2a45',
-  textDim: '#3a3a5c',
-  dot: '#1e1e35',
-  card: '#0c0c18',
-  inputBg: '#0c0c18',
-  tabActiveBg: 'rgba(99,102,241,0.08)',
-  topbarBg: 'rgba(8,8,16,0.8)',
-  tabsBg: 'rgba(8,8,16,0.6)',
-  tabContentBg: 'rgba(12,12,24,0.5)',
-  responseHeaderBg: 'rgba(8,8,16,0.5)',
-  sectionBg: '#0a0a14',
-  aiPanelBg: '#0a0a16',
-  aiInputBg: '#0c0c18',
-  outputBg: '#0c0c18',
-  outputHeaderBg: '#080810',
-  contentBg: '#080810',
-  toolbarBg: '#080810',
-  historyEntryHover: 'rgba(255,255,255,0.03)',
-  toggleBg: '#16162a',
-  toggleBorder: '#2a2a45',
-  toggleShadow: '0 4px 20px rgba(0,0,0,0.4)',
-}
-
-const lightTheme = {
-  page: '#f0f0f8',
-  sidebar: '#f8f8fc',
-  border: '#e0e0ee',
-  borderSubtle: '#eaeaf4',
-  text: '#1a1a2e',
-  textMuted: '#666688',
-  textFaint: '#aaaacc',
-  textDim: '#888899',
-  dot: '#d8d8ee',
-  card: '#ffffff',
-  inputBg: '#ffffff',
-  tabActiveBg: 'rgba(99,102,241,0.06)',
-  topbarBg: 'rgba(240,240,248,0.9)',
-  tabsBg: 'rgba(240,240,248,0.7)',
-  tabContentBg: 'rgba(248,248,252,0.6)',
-  responseHeaderBg: 'rgba(240,240,248,0.8)',
-  sectionBg: '#f4f4fc',
-  aiPanelBg: '#f8f8fc',
-  aiInputBg: '#ffffff',
-  outputBg: '#ffffff',
-  outputHeaderBg: '#f4f4fc',
-  contentBg: '#fafafe',
-  toolbarBg: '#f4f4fc',
-  historyEntryHover: 'rgba(99,102,241,0.04)',
-  toggleBg: '#ffffff',
-  toggleBorder: '#e0e0ee',
-  toggleShadow: '0 4px 20px rgba(0,0,0,0.1)',
-}
 
 const METHOD_COLORS = {
   GET: '#22c55e',
@@ -88,10 +30,9 @@ export default function ApiTester() {
   const [timeTaken, setTimeTaken] = useState(null)
   const [historyKey, setHistoryKey] = useState(0)
   const [activeTab, setActiveTab] = useState('headers')
-  const [isDark, setIsDark] = useState(false)
-  const navigate = useNavigate()
+  const { isDark, theme: t, toggleTheme } = useTheme()
   const { user, logout } = useAuth()
-  const t = isDark ? darkTheme : lightTheme
+  const navigate = useNavigate()
 
   const refresh = () => setHistoryKey(k => k + 1)
 
@@ -130,7 +71,8 @@ export default function ApiTester() {
     <div style={{ display: 'flex', height: '100vh', background: t.page, color: t.text, fontFamily: "'Syne', sans-serif", overflow: 'hidden', position: 'relative', transition: 'background 0.3s ease, color 0.3s ease' }}>
 
       {/* Dot grid */}
-      <div style={{ position: 'fixed', inset: 0, backgroundImage: `radial-gradient(circle, ${t.dot} 1px, transparent 1px)`, backgroundSize: '28px 28px', opacity: 0.55, pointerEvents: 'none', zIndex: 0, transition: 'background-image 0.3s ease' }} />
+      <div style={{ position: 'fixed', inset: 0, backgroundImage: `radial-gradient(circle, ${t.dot} 1px, transparent 1px)`, backgroundSize: '28px 28px', opacity: 0.55, pointerEvents: 'none', zIndex: 0 }} />
+
       {/* Glow orbs — dark only */}
       {isDark && (
         <>
@@ -141,35 +83,10 @@ export default function ApiTester() {
 
       {/* LEFT SIDEBAR */}
       <aside style={{ width: '240px', minWidth: '240px', background: t.sidebar, borderRight: `1px solid ${t.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 10, transition: 'background 0.3s ease, border-color 0.3s ease' }}>
+
         {/* Logo */}
-        <div
-          onClick={() => navigate('/')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '18px 16px 14px',
-            borderBottom: `1px solid ${t.border}`,
-            cursor: 'pointer',
-          }}>
-          <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-            <defs>
-              <linearGradient id="sidebarBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#4f46e5" />
-                <stop offset="100%" stopColor="#7c3aed" />
-              </linearGradient>
-              <radialGradient id="sidebarInnerGlow" cx="30%" cy="25%" r="60%">
-                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#sidebarBgGrad)" />
-            <rect x="0" y="0" width="120" height="120" rx="28" ry="28" fill="url(#sidebarInnerGlow)" />
-            <rect x="1" y="1" width="118" height="118" rx="27.5" ry="27.5" fill="none" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.5" />
-            <path d="M42 36 L22 60 L42 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
-            <path d="M78 36 L98 60 L78 84" fill="none" stroke="#ffffff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.95" />
-            <line x1="66" y1="30" x2="54" y2="90" stroke="#ffffff" strokeWidth="6" strokeLinecap="round" strokeOpacity="0.6" />
-          </svg>
+        <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '18px 16px 14px', borderBottom: `1px solid ${t.border}`, cursor: 'pointer' }}>
+          <DevKitLogo size={28} />
           <span style={{ fontSize: '15px', fontWeight: '700', color: t.text, letterSpacing: '0.4px' }}>DevKit</span>
         </div>
 
@@ -210,21 +127,21 @@ export default function ApiTester() {
             {/* Method selector */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '0 14px', borderRight: `1px solid ${t.border}`, height: '42px', flexShrink: 0 }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: METHOD_COLORS[method], flexShrink: 0 }} />
-              <select value={method} onChange={(e) => setMethod(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", color: METHOD_COLORS[method] }}>
+              <select value={method} onChange={e => setMethod(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", color: METHOD_COLORS[method] }}>
                 {['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             {/* URL input */}
-            <input type="text" placeholder="Enter request URL  (Ctrl+Enter to send)" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={handleKeyDown} style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: t.text, fontSize: '13px', padding: '0 14px', height: '42px', fontFamily: "'IBM Plex Mono', monospace" }} />
+            <input type="text" placeholder="Enter request URL  (Ctrl+Enter to send)" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={handleKeyDown} style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: t.text, fontSize: '13px', padding: '0 14px', height: '42px', fontFamily: "'IBM Plex Mono', monospace" }} />
             {/* Send button */}
-            <button onClick={handleSend} disabled={loading || !url} style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff', border: 'none', borderRadius: '0 8px 8px 0', padding: '0 22px', height: '42px', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '7px', transition: 'opacity 0.2s', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(99,102,241,0.25)', flexShrink: 0, opacity: loading || !url ? 0.45 : 1, cursor: loading || !url ? 'not-allowed' : 'pointer' }}>
-              {loading ? <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>◌</span> : <>Send <span style={{ fontSize: '14px' }}>→</span></>}
+            <button onClick={handleSend} disabled={loading || !url} style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff', border: 'none', borderRadius: '0 8px 8px 0', padding: '0 22px', height: '42px', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '7px', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(99,102,241,0.25)', flexShrink: 0, opacity: loading || !url ? 0.45 : 1, cursor: loading || !url ? 'not-allowed' : 'pointer', transition: 'opacity 0.2s' }}>
+              {loading ? <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>◌</span> : <>Send <span style={{ fontSize: '14px' }}>→</span></>}
             </button>
           </div>
         </div>
 
         {/* TABS */}
-        <div style={{ display: 'flex', padding: '0 20px', borderBottom: `1px solid ${t.border}`, background: t.tabsBg, gap: '2px', transition: 'background 0.3s ease, border-color 0.3s ease' }}>
+        <div style={{ display: 'flex', padding: '0 20px', borderBottom: `1px solid ${t.border}`, background: t.tabsBg, gap: '2px', transition: 'background 0.3s ease' }}>
           {['headers', 'body'].map(tab => {
             if (tab === 'body' && method === 'GET') return null
             const isActive = activeTab === tab
@@ -232,28 +149,28 @@ export default function ApiTester() {
             return (
               <button key={tab} onClick={() => setActiveTab(tab)} style={{ background: isActive ? t.tabActiveBg : 'transparent', border: 'none', borderBottom: isActive ? '2px solid #6366f1' : '2px solid transparent', color: isActive ? '#a78bfa' : t.textMuted, fontSize: '12px', fontWeight: '600', padding: '11px 16px', cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s, background 0.2s' }}>
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                {count > 0 && <span style={{ background: '#6366f122', color: '#a78bfa', border: '1px solid #6366f133', borderRadius: '10px', padding: '1px 6px', fontSize: '10px', fontFamily: "'IBM Plex Mono', monospace" }}>{count}</span>}
+                {count > 0 && <span style={{ background: '#6366f122', color: '#a78bfa', border: '1px solid #6366f133', borderRadius: '10px', padding: '1px 6px', fontSize: '10px' }}>{count}</span>}
               </button>
             )
           })}
         </div>
 
         {/* TAB CONTENT */}
-        <div style={{ padding: '16px 20px', borderBottom: `1px solid ${t.border}`, maxHeight: '200px', overflowY: 'auto', background: t.tabContentBg, transition: 'background 0.3s ease, border-color 0.3s ease' }}>
+        <div style={{ padding: '16px 20px', borderBottom: `1px solid ${t.border}`, maxHeight: '200px', overflowY: 'auto', background: t.tabContentBg, transition: 'background 0.3s ease' }}>
           {activeTab === 'headers' && <HeadersEditor t={t} headers={headers} setHeaders={setHeaders} />}
           {activeTab === 'body' && method !== 'GET' && <BodyEditor t={t} body={body} setBody={setBody} />}
         </div>
 
-        {/* RESPONSE SECTION */}
+        {/* RESPONSE */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 20px', borderBottom: `1px solid ${t.border}`, background: t.responseHeaderBg, transition: 'background 0.3s ease, border-color 0.3s ease' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 20px', borderBottom: `1px solid ${t.border}`, background: t.responseHeaderBg, transition: 'background 0.3s ease' }}>
             <div style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: t.textMuted, fontFamily: "'IBM Plex Mono', monospace", display: 'flex', alignItems: 'center', gap: '7px' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#6366f1', animation: 'blink 2s ease-in-out infinite' }} />
               Response
             </div>
             {response && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px', letterSpacing: '0.3px', fontFamily: "'IBM Plex Mono', monospace", background: response.status >= 200 && response.status < 300 ? '#22c55e15' : '#ef444415', color: response.status >= 200 && response.status < 300 ? '#4ade80' : '#f87171', border: `1px solid ${response.status >= 200 && response.status < 300 ? '#22c55e33' : '#ef444433'}` }}>
+                <span style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px', fontFamily: "'IBM Plex Mono', monospace", background: response.status >= 200 && response.status < 300 ? '#22c55e15' : '#ef444415', color: response.status >= 200 && response.status < 300 ? '#4ade80' : '#f87171', border: `1px solid ${response.status >= 200 && response.status < 300 ? '#22c55e33' : '#ef444433'}` }}>
                   {response.status} {response.statusText}
                 </span>
                 <span style={{ fontSize: '11px', color: t.textMuted, background: t.card, border: `1px solid ${t.border}`, padding: '3px 10px', borderRadius: '20px', fontFamily: "'IBM Plex Mono', monospace" }}>{timeTaken}ms</span>
@@ -288,8 +205,8 @@ export default function ApiTester() {
         <AIPanel t={t} isDark={isDark} request={{ url, method, headers, body }} response={response} onBodyGenerated={(generatedBody) => { setBody(generatedBody); setActiveTab('body') }} />
       </main>
 
-      {/* Floating theme toggle */}
-      <button onClick={() => setIsDark(d => !d)} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'} style={{ position: 'fixed', bottom: '28px', right: '28px', width: '44px', height: '44px', borderRadius: '50%', background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, boxShadow: `${t.toggleShadow}, 0 0 0 1px ${t.toggleBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 999, fontSize: '19px', transition: 'all 0.3s ease', backdropFilter: 'blur(8px)' }}>
+      {/* Theme toggle */}
+      <button onClick={toggleTheme} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'} style={{ position: 'fixed', bottom: '28px', right: '28px', width: '44px', height: '44px', borderRadius: '50%', background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, boxShadow: t.toggleShadow, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 999, fontSize: '19px', transition: 'all 0.3s ease', backdropFilter: 'blur(8px)' }}>
         {isDark ? '☀️' : '🌙'}
       </button>
 
@@ -298,7 +215,6 @@ export default function ApiTester() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         select option { background: ${isDark ? '#0c0c18' : '#ffffff'}; color: ${isDark ? '#e2e2f0' : '#1a1a2e'}; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${isDark ? '#1e1e30' : '#d0d0e8'}; border-radius: 4px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
