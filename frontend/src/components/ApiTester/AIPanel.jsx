@@ -46,7 +46,7 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
   return (
     <div style={{
       borderTop: `1px solid ${t.border}`,
-      background: t.aiPanelBg,
+      background: isMaximized ? t.page : t.aiPanelBg,
       transition: 'background 0.3s ease, border-color 0.3s ease',
       ...(isMaximized ? { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden' } : {}),
     }}>
@@ -155,4 +155,4 @@ export default function AIPanel({ request, response, onBodyGenerated }) {
       )}
     </div>
   )
-}
+}   
