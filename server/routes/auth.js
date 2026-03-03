@@ -5,7 +5,8 @@ const crypto = require('crypto')
 const User = require('../models/User')
 const auth = require('../middleware/authMiddleware')
 const passport = require('../utils/passport')
-const { sendPasswordResetEmail } = require('../utils/email')
+const nodemailer = require('nodemailer')
+const { sendOtpEmail } = require('../utils/email')
 
 const router = express.Router()
 
@@ -21,6 +22,15 @@ const setCookie = (res, token) => res.cookie('token', token, {
   sameSite: 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000
 })
+
+function generateOtp() {
+  return (crypto.randomInt(100000, 999999)).toString()
+}
+
+/** SHA-256 hash before storing — never persist raw OTPs or tokens */
+function sha256(value) {
+  return crypto.createHash('sha256').update(value).digest('hex')
+}
 
 // Register
 router.post('/register', async (req, res) => {
@@ -97,42 +107,180 @@ router.put('/profile', auth, async (req, res) => {
 
 // Forgot password
 router.post('/forgot-password', async (req, res) => {
-  const { email } = req.body
+  const email = req.body.email?.trim().toLowerCase()
+
+  if (!email) return res.status(400).json({ error: 'Email is required' })
+
   try {
-    const user = await User.findOne({ email })
-    if (!user) return res.status(404).json({ error: 'No account with that email' })
-    if (!user.password) return res.status(400).json({ error: 'This account uses Google login' })
+    const user = await User.findOne({ email }).select('+otpHash +otpExpiry')
 
-    const token = crypto.randomBytes(32).toString('hex')
-    user.resetPasswordToken = token
-    user.resetPasswordExpiry = Date.now() + 3600000 // 1 hour
-    await user.save()
+    if (!user || !user.password) {
+      return res.json({ message: 'OTP sent' })
+    }
 
-    await sendPasswordResetEmail(email, token)
-    res.json({ message: 'Reset email sent' })
+    const otp       = generateOtp()
+    const otpHash   = sha256(otp)
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000)
+
+    // Use findOneAndUpdate to bypass any Mongoose caching/select issues
+    const updated = await User.findOneAndUpdate(
+      { email },
+      {
+        $set: {
+          otpHash,
+          otpExpiry,
+        },
+        $unset: {
+          resetPasswordToken:  '',
+          resetPasswordExpiry: '',
+        },
+      },
+      { new: true, select: '+otpHash +otpExpiry' }
+    )
+
+    console.log('[forgot-password] after update — otpHash in DB:', updated?.otpHash)
+    console.log('[forgot-password] after update — otpExpiry in DB:', updated?.otpExpiry)
+
+    await sendOtpEmail(email, otp)
+
+    res.json({ message: 'OTP sent' })
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    console.error('[forgot-password]', err)
+    res.status(500).json({ error: 'Failed to send code. Please try again.' })
   }
 })
 
-// Reset password
-router.post('/reset-password', async (req, res) => {
-  const { token, password } = req.body
-  try {
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpiry: { $gt: Date.now() }
-    })
-    if (!user) return res.status(400).json({ error: 'Invalid or expired token' })
+// ─── POST /api/auth/verify-otp ────────────────────────────────────────
+// Body:     { email, otp }
+// Response: { resetToken }
+//
+// Verifies the OTP, then issues a short-lived resetToken so the
+// frontend can proceed to the password step without re-verifying.
 
-    user.password = await bcrypt.hash(password, 10)
-    user.resetPasswordToken = undefined
-    user.resetPasswordExpiry = undefined
+router.post('/verify-otp', async (req, res) => {
+  const email = req.body.email?.trim().toLowerCase()
+  const otp   = req.body.otp?.trim()
+
+  if (!email || !otp) {
+    return res.status(400).json({ error: 'Email and OTP are required' })
+  }
+
+  if (!/^\d{6}$/.test(otp)) {
+    return res.status(400).json({ error: 'OTP must be a 6-digit number' })
+  }
+
+  try {
+    const user = await User.findOne({ email }).select('+otpHash +otpExpiry')
+
+    const genericError = () =>
+      res.status(400).json({ error: 'Invalid or expired code. Please request a new one.' })
+
+    if (!user || !user.otpHash || !user.otpExpiry) {
+      console.log('[verify-otp] FAILED — user or OTP fields missing')
+      return genericError()
+    }
+
+    if (new Date() > user.otpExpiry) {
+      console.log('[verify-otp] FAILED — OTP expired')
+      user.otpHash   = undefined
+      user.otpExpiry = undefined
+      await user.save()
+      return res.status(400).json({ error: 'Code has expired. Please request a new one.' })
+    }
+
+    if (sha256(otp) !== user.otpHash) {
+      console.log('[verify-otp] FAILED — hash mismatch')
+      return genericError()
+    }
+
+    // Valid — consume OTP
+    user.otpHash   = undefined
+    user.otpExpiry = undefined
+
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    user.resetPasswordToken  = sha256(resetToken)
+    user.resetPasswordExpiry = new Date(Date.now() + 10 * 60 * 1000)
+
     await user.save()
 
-    res.json({ message: 'Password reset successful' })
+    console.log('[verify-otp] SUCCESS — reset token issued')
+
+    res.json({ resetToken })
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    console.error('[verify-otp]', err)
+    res.status(500).json({ error: 'Verification failed. Please try again.' })
+  }
+})
+// Reset password
+router.post('/reset-password', async (req, res) => {
+  const { resetToken, newPassword } = req.body
+
+  if (!resetToken || !newPassword) {
+    return res.status(400).json({ error: 'Reset token and new password are required' })
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' })
+  }
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken:  sha256(resetToken),
+      resetPasswordExpiry: { $gt: Date.now() },
+    })
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired session. Please start over.' })
+    }
+
+    user.password            = await bcrypt.hash(newPassword, 12)
+    user.resetPasswordToken  = undefined
+    user.resetPasswordExpiry = undefined
+    // Belt-and-suspenders: clear OTP fields too
+    user.resetOtpHash        = undefined
+    user.resetOtpExpiry      = undefined
+
+    await user.save()
+
+    res.json({ message: 'Password updated successfully' })
+  } catch (err) {
+    console.error('[reset-password]', err)
+    res.status(500).json({ error: 'Failed to reset password. Please try again.' })
+  }
+})
+
+// Delete account
+router.delete('/delete-account', auth, async (req, res) => {
+  const { password } = req.body
+
+  try {
+    const user = await User.findById(req.user.id).select('+password')
+
+    if (!user) return res.status(404).json({ error: 'User not found' })
+
+    // Password accounts must confirm with their current password
+    if (user.password) {
+      if (!password) {
+        return res.status(400).json({ error: 'Password is required to delete your account' })
+      }
+      const match = await bcrypt.compare(password, user.password)
+      if (!match) {
+        return res.status(400).json({ error: 'Incorrect password' })
+      }
+    }
+
+    // Delete all data belonging to this user
+    // await Snippet.deleteMany({ user: user._id })
+
+    await User.findByIdAndDelete(user._id)
+
+    // Clear the JWT cookie
+    res.clearCookie('token')
+
+    res.json({ message: 'Account deleted successfully' })
+  } catch (err) {
+    console.error('[delete-account]', err)
+    res.status(500).json({ error: 'Failed to delete account. Please try again.' })
   }
 })
 
@@ -147,5 +295,6 @@ router.get('/google/callback',
     res.redirect(`${process.env.CLIENT_URL}/`)
   }
 )
+
 
 module.exports = router

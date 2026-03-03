@@ -75,11 +75,7 @@ export default function HomePage() {
           <DevKitLogo size={28} />
           <span style={{ ...styles.navLogoText, color: t.text }}>DevKit</span>
         </div>
-        <div style={styles.navLinks}>
-          {['API Tester', 'Snippets', 'Color Palettes'].map(link => (
-            <button key={link} style={{ ...styles.navLink, color: t.textMuted }}>{link}</button>
-          ))}
-        </div>
+        
         <div style={styles.navRight}>
           {user ? (
             <>

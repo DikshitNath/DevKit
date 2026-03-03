@@ -36,3 +36,10 @@ export const resetPassword = async (token, password) => {
   const res = await api.post('/api/auth/reset-password', { token, password })
   return res.data
 }
+
+export const deleteAccount = async (password) => {
+  const res = await api.delete('/api/auth/delete-account', {
+    data: { password },
+  })
+  return res.data
+}

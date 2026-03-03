@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext'
 
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
+import ForgotPassword from './pages/auth/Forgotpassword'
 import Profile from './pages/Profile'
 import HomePage from './pages/HomePage'
 import ApiTester from './components/ApiTester'
@@ -41,6 +42,7 @@ function AppRoutes() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/test-api" element={<ProtectedRoute><ApiTester /></ProtectedRoute>} />
         <Route path="/snippets" element={<ProtectedRoute><SnippetManager /></ProtectedRoute>} />
