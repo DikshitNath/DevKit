@@ -30,7 +30,7 @@ export default function SnippetManager() {
   const fetchSnippets = async () => {
     try {
       const data = await getSnippets()
-      setSnippets(data)
+      setSnippets(data || [])
     } catch (err) {
       console.error(err)
     } finally {

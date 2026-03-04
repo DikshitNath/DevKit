@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../../context/ThemeContext'
 import DevKitLogo from '../../components/ui/DevKitLogo'
 import ReactMarkdown from 'react-markdown'
+import { explainRegex, generateRegex } from '../../utils/aiService'
 
 const PRESETS = [
   { label: 'Email', pattern: '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}', flags: 'g' },
@@ -69,10 +70,10 @@ export default function RegexTester() {
     setAiLoading(true); setAiOutput('')
     try {
       if (mode === 'explain') {
-        const res = await axios.post('/api/ai/explain-regex', { pattern, flags }, { withCredentials: true })
+        const res = await explainRegex(pattern, flags)
         setAiOutput(res.data.explanation); setAiMode('explain')
       } else {
-        const res = await axios.post('/api/ai/generate-regex', { description: aiPrompt }, { withCredentials: true })
+        const res = await generateRegex(aiPrompt)
         setPattern(res.data.pattern); setFlags(res.data.flags || 'g')
         setAiOutput(res.data.explanation); setAiMode('explain'); setAiPrompt('')
       }

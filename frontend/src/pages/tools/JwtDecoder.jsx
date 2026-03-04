@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../../context/ThemeContext'
 import DevKitLogo from '../../components/ui/DevKitLogo'
 
+
 const SAMPLE_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NzhjZDEyMzQ1NiIsInVzZXJuYW1lIjoiZGlrc2hpdG5hdGgiLCJpYXQiOjE3MTk4MzIwMDAsImV4cCI6MTcyMDQzNjgwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
 const PART_COLORS = ['#f59e0b', '#06b6d4', '#f87171']
 const PART_NAMES = ['Header', 'Payload', 'Signature']

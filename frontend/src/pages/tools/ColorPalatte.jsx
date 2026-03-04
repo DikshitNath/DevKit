@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import DevKitLogo from '../../components/ui/DevKitLogo'
+import { generatePalette } from '../../utils/aiService'
 
 // ─── Color Math ──────────────────────────────────────────────────────
 function hexToHsl(hex) {
@@ -113,7 +114,7 @@ export default function ColorPalette() {
     if (!aiPrompt.trim()) return
     setAiLoading(true)
     try {
-      const res = await axios.post('/api/ai/generate-palette', { description: aiPrompt }, { withCredentials: true })
+      const res = await generatePalette(aiPrompt)
       const colors = res.data.colors
       if (colors?.length >= 5) { setPalette(colors.slice(0, 5)); setBaseColor(colors[0]); setHexInput(colors[0]); setShowAI(false); setAiPrompt('') }
     } catch (err) { console.error(err) } finally { setAiLoading(false) }

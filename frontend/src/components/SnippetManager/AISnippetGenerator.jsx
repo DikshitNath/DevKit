@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { useTheme } from '../../context/ThemeContext'
+import { generateSnippet } from '../../utils/aiService'
 
 export default function AISnippetGenerator({ language, onGenerate }) {
   const { theme: t } = useTheme()
@@ -12,7 +13,7 @@ export default function AISnippetGenerator({ language, onGenerate }) {
     setLoading(true)
     setError('')
     try {
-      const res = await axios.post('/api/ai/generate-snippet', { prompt, language }, { withCredentials: true })
+      const res = await generateSnippet(prompt, language)
       onGenerate(res.data.code)
     } catch {
       setError('Failed to generate snippet')
