@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../../context/ThemeContext'
 import DevKitLogo from '../../components/ui/DevKitLogo'
+import ReactMarkdown from 'react-markdown'
 
 const PRESETS = [
   { label: 'Email', pattern: '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}', flags: 'g' },
@@ -135,7 +136,7 @@ export default function RegexTester() {
                 <div style={{ fontSize: '10px', color: t.textFaint, fontFamily: mono, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email || ''}</div>
               </div>
               <button onClick={logout} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '5px', color: t.textMuted, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             </div>
           ) : (
@@ -206,7 +207,26 @@ export default function RegexTester() {
             </div>
             <div style={{ padding: '14px 20px', fontSize: '13px', lineHeight: '1.7', color: t.text }}>
               {aiLoading ? <span style={{ color: t.textMuted, fontFamily: mono }}>✦ AI is thinking...</span> : (
-                <pre style={{ margin: 0, fontFamily: mono, whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '12px' }}>{aiOutput}</pre>
+                <ReactMarkdown components={{
+                  h1: ({ children }) => <h1 style={{ color: '#a78bfa', fontSize: '16px', fontWeight: '700', marginBottom: '8px', paddingBottom: '6px', borderBottom: `1px solid ${t.border}` }}>{children}</h1>,
+                  h2: ({ children }) => <h2 style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '700', margin: '12px 0 6px' }}>{children}</h2>,
+                  h3: ({ children }) => <h3 style={{ color: '#a78bfa', fontSize: '13px', fontWeight: '600', margin: '10px 0 4px' }}>{children}</h3>,
+                  h4: ({ children }) => <h4 style={{ color: '#a78bfa', fontSize: '12px', fontWeight: '600', margin: '8px 0 4px' }}>{children}</h4>,
+                  p: ({ children }) => <p style={{ margin: '6px 0', color: t.textMuted }}>{children}</p>,
+                  code: ({ className, children }) => {
+                    const isInline = !className && !String(children).includes('\n')
+                    return isInline
+                      ? <code style={{ background: isDark ? '#1e1e30' : '#ebebf8', color: '#fb923c', padding: '1px 6px', borderRadius: '4px', fontSize: '12px', fontFamily: "'IBM Plex Mono', monospace" }}>{children}</code>
+                      : <pre style={{ background: isDark ? '#0a0a12' : '#f0f0f8', border: `1px solid ${t.border}`, borderRadius: '6px', padding: '10px 12px', margin: '8px 0', fontSize: '12px', color: isDark ? '#a78bfa' : '#6366f1', overflowX: 'auto', fontFamily: "'IBM Plex Mono', monospace" }}><code>{children}</code></pre>
+                  },
+                  ul: ({ children }) => <ul style={{ paddingLeft: '20px', margin: '6px 0' }}>{children}</ul>,
+                  ol: ({ children }) => <ol style={{ paddingLeft: '20px', margin: '6px 0' }}>{children}</ol>,
+                  li: ({ children }) => <li style={{ margin: '4px 0', color: t.textMuted }}>{children}</li>,
+                  strong: ({ children }) => <strong style={{ color: t.text, fontWeight: '600' }}>{children}</strong>,
+                  hr: () => <hr style={{ border: 'none', borderTop: `1px solid ${t.border}`, margin: '10px 0' }} />,
+                }}>
+                  {aiOutput}
+                </ReactMarkdown>
               )}
             </div>
           </div>

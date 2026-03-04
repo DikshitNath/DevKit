@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-const api = axios.create({ withCredentials: true })
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || '',
+  withCredentials: true,
+})
 
 export const register = async (username, email, password) => {
   const res = await api.post('/api/auth/register', { username, email, password })
