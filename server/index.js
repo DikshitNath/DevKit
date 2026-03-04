@@ -3,6 +3,8 @@ const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const session = require('express-session')
+const helmet = require('helmet') 
+const rateLimit = require('express-rate-limit')
 require('dotenv').config()
 const passport = require('./utils/passport')
 
@@ -12,21 +14,57 @@ const aiRoutes = require('./routes/ai')
 
 const app = express()
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }))
+// 1. TRUST THE PROXY (Crucial for secure cross-origin cookies on hosting platforms)
+app.set('trust proxy', 1)
+
+// 2. PRODUCTION SECURITY
+app.use(helmet()) // Secures HTTP headers
+
+// Limit requests to prevent brute-force attacks
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per window
+})
+app.use('/api/', limiter)
+
+// 3. FLEXIBLE CORS CONFIGURATION
+// This allows your production URL and local environments to work seamlessly
+const allowedOrigins = [
+  process.env.CLIENT_URL, 
+  'http://localhost:5173', 
+  'http://localhost:3000'
+]
+
+app.use(cors({ 
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }, 
+  credentials: true 
+}))
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+
+// 4. ENVIRONMENT-AWARE COOKIES
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(session({
-  secret: process.env.JWT_SECRET,
+  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true,        // required for HTTPS
-    sameSite: 'none',    // required for cross-origin
+    secure: isProduction, // true in production (HTTPS), false locally (HTTP)
+    sameSite: isProduction ? 'none' : 'lax', // 'none' cross-domain, 'lax' locally
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days
   }
 }))
+
 app.use(passport.initialize())
 app.use(passport.session())
 

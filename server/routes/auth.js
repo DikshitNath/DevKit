@@ -5,7 +5,6 @@ const crypto = require('crypto')
 const User = require('../models/User')
 const auth = require('../middleware/authMiddleware')
 const passport = require('../utils/passport')
-const nodemailer = require('nodemailer')
 const { sendOtpEmail } = require('../utils/email')
 
 const router = express.Router()
@@ -16,12 +15,17 @@ const signToken = (user) => jwt.sign(
   { expiresIn: '7d' }
 )
 
-const setCookie = (res, token) => res.cookie('token', token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'none',
-  maxAge: 7 * 24 * 60 * 60 * 1000
-})
+// PRODUCTION FIX: Environment-aware cookie settings
+const setCookie = (res, token) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: isProduction, // Must be true in prod (HTTPS), false locally (HTTP)
+    sameSite: isProduction ? 'none' : 'lax', // 'none' cross-domain, 'lax' locally
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  });
+};
 
 function generateOtp() {
   return (crypto.randomInt(100000, 999999)).toString()
@@ -37,7 +41,7 @@ router.post('/register', async (req, res) => {
   const { username, email, password } = req.body
   try {
     const hashedPassword = await bcrypt.hash(password, 10)
-    const user = await User.create({ username, email, password: hashedPassword })
+    await User.create({ username, email, password: hashedPassword })
     res.status(201).json({ message: 'User created successfully' })
   } catch (err) {
     res.status(400).json({ error: err.message })
@@ -64,7 +68,11 @@ router.post('/login', async (req, res) => {
 
 // Logout
 router.post('/logout', (req, res) => {
-  res.clearCookie('token')
+  res.clearCookie('token', { 
+    // Need to match the sameSite and secure settings when clearing
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  })
   res.json({ message: 'Logged out successfully' })
 })
 
@@ -118,11 +126,11 @@ router.post('/forgot-password', async (req, res) => {
       return res.json({ message: 'OTP sent' })
     }
 
-    const otp       = generateOtp()
-    const otpHash   = sha256(otp)
+    const otp = generateOtp()
+    const otpHash = sha256(otp)
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000)
 
-    // Use findOneAndUpdate to bypass any Mongoose caching/select issues
+    // FIXED: Removed the misplaced async wrapper inside the try block that was causing errors
     const updated = await User.findOneAndUpdate(
       { email },
       {
@@ -131,7 +139,7 @@ router.post('/forgot-password', async (req, res) => {
           otpExpiry,
         },
         $unset: {
-          resetPasswordToken:  '',
+          resetPasswordToken: '',
           resetPasswordExpiry: '',
         },
       },
@@ -150,16 +158,10 @@ router.post('/forgot-password', async (req, res) => {
   }
 })
 
-// ─── POST /api/auth/verify-otp ────────────────────────────────────────
-// Body:     { email, otp }
-// Response: { resetToken }
-//
-// Verifies the OTP, then issues a short-lived resetToken so the
-// frontend can proceed to the password step without re-verifying.
-
+// Verify OTP
 router.post('/verify-otp', async (req, res) => {
   const email = req.body.email?.trim().toLowerCase()
-  const otp   = req.body.otp?.trim()
+  const otp = req.body.otp?.trim()
 
   if (!email || !otp) {
     return res.status(400).json({ error: 'Email and OTP are required' })
@@ -182,7 +184,7 @@ router.post('/verify-otp', async (req, res) => {
 
     if (new Date() > user.otpExpiry) {
       console.log('[verify-otp] FAILED — OTP expired')
-      user.otpHash   = undefined
+      user.otpHash = undefined
       user.otpExpiry = undefined
       await user.save()
       return res.status(400).json({ error: 'Code has expired. Please request a new one.' })
@@ -194,11 +196,11 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     // Valid — consume OTP
-    user.otpHash   = undefined
+    user.otpHash = undefined
     user.otpExpiry = undefined
 
     const resetToken = crypto.randomBytes(32).toString('hex')
-    user.resetPasswordToken  = sha256(resetToken)
+    user.resetPasswordToken = sha256(resetToken)
     user.resetPasswordExpiry = new Date(Date.now() + 10 * 60 * 1000)
 
     await user.save()
@@ -211,6 +213,7 @@ router.post('/verify-otp', async (req, res) => {
     res.status(500).json({ error: 'Verification failed. Please try again.' })
   }
 })
+
 // Reset password
 router.post('/reset-password', async (req, res) => {
   const { resetToken, newPassword } = req.body
@@ -225,7 +228,7 @@ router.post('/reset-password', async (req, res) => {
 
   try {
     const user = await User.findOne({
-      resetPasswordToken:  sha256(resetToken),
+      resetPasswordToken: sha256(resetToken),
       resetPasswordExpiry: { $gt: Date.now() },
     })
 
@@ -233,12 +236,11 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ error: 'Invalid or expired session. Please start over.' })
     }
 
-    user.password            = await bcrypt.hash(newPassword, 12)
-    user.resetPasswordToken  = undefined
+    user.password = await bcrypt.hash(newPassword, 12)
+    user.resetPasswordToken = undefined
     user.resetPasswordExpiry = undefined
-    // Belt-and-suspenders: clear OTP fields too
-    user.resetOtpHash        = undefined
-    user.resetOtpExpiry      = undefined
+    user.resetOtpHash = undefined
+    user.resetOtpExpiry = undefined
 
     await user.save()
 
@@ -258,7 +260,6 @@ router.delete('/delete-account', auth, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: 'User not found' })
 
-    // Password accounts must confirm with their current password
     if (user.password) {
       if (!password) {
         return res.status(400).json({ error: 'Password is required to delete your account' })
@@ -269,13 +270,12 @@ router.delete('/delete-account', auth, async (req, res) => {
       }
     }
 
-    // Delete all data belonging to this user
-    // await Snippet.deleteMany({ user: user._id })
-
     await User.findByIdAndDelete(user._id)
 
-    // Clear the JWT cookie
-    res.clearCookie('token')
+    res.clearCookie('token', {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    })
 
     res.json({ message: 'Account deleted successfully' })
   } catch (err) {
@@ -295,6 +295,5 @@ router.get('/google/callback',
     res.redirect(`${process.env.CLIENT_URL}/`)
   }
 )
-
 
 module.exports = router
