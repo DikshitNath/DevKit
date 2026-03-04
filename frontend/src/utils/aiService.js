@@ -45,7 +45,7 @@ export const generateRegex = async (description) => {
   return res.data
 }
 
-export const generatePalette = async (description) => {
+export const generateColorPalette = async (description, numColors) => {
   const res = await apiClient.post('/generate-palette', { description })
   return res.data.colors
 }

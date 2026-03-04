@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import DevKitLogo from '../../components/ui/DevKitLogo'
-import { generatePalette } from '../../utils/aiService'
+import { generateColorPalette } from '../../utils/aiService'
 
 // ─── Color Math ──────────────────────────────────────────────────────
 function hexToHsl(hex) {
@@ -57,7 +57,7 @@ function textColor(hex) { return getLuminance(hex) > 0.5 ? '#1a1a2e' : '#ffffff'
 
 const MODES = ['Complementary', 'Triadic', 'Analogous', 'Monochromatic', 'Split']
 
-function generatePalette(baseHex, mode) {
+function generatePalette(baseHex, mode, numColors) {
   const [h, s, l] = hexToHsl(baseHex)
   switch (mode) {
     case 'Complementary': return [baseHex, hslToHex(h, s, Math.min(l + 20, 90)), hslToHex(h, s, Math.max(l - 20, 10)), hslToHex(h + 180, s, l), hslToHex(h + 180, s, Math.min(l + 15, 90))]
@@ -114,7 +114,7 @@ export default function ColorPalette() {
     if (!aiPrompt.trim()) return
     setAiLoading(true)
     try {
-      const colors = await generatePalette(aiPrompt)
+      const colors = await generateColorPalette(aiPrompt)
       if (colors?.length >= 5) {
         setPalette(colors.slice(0, 5))
         setBaseColor(colors[0])
