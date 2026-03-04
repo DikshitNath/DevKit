@@ -1,10 +1,16 @@
 import axios from 'axios'
 
-const api = axios.create({ withCredentials: true })
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+const api = axios.create({
+  baseURL: API,
+  withCredentials: true
+})
 
 export const getSnippets = async () => {
   const res = await api.get('/api/snippets')
-  return res.data
+  // handle both { snippets: [...] } and [...] response shapes
+  return Array.isArray(res.data) ? res.data : (res.data.snippets || [])
 }
 
 export const createSnippet = async (data) => {

@@ -13,14 +13,14 @@ export default function AISnippetGenerator({ language, onGenerate }) {
     setLoading(true)
     setError('')
     try {
-      const res = await generateSnippet(prompt, language)
-      onGenerate(res.data.code)
+      const code = await generateSnippet(prompt, language)
+      onGenerate(code)
     } catch {
       setError('Failed to generate snippet')
     } finally {
       setLoading(false)
     }
-  }
+  } 
 
   return (
     <div style={{ padding: '12px 20px', borderBottom: `1px solid ${t.border}`, background: t.aiPanelBg, display: 'flex', flexDirection: 'column', gap: '8px' }}>

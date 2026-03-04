@@ -114,10 +114,19 @@ export default function ColorPalette() {
     if (!aiPrompt.trim()) return
     setAiLoading(true)
     try {
-      const res = await generatePalette(aiPrompt)
-      const colors = res.data.colors
-      if (colors?.length >= 5) { setPalette(colors.slice(0, 5)); setBaseColor(colors[0]); setHexInput(colors[0]); setShowAI(false); setAiPrompt('') }
-    } catch (err) { console.error(err) } finally { setAiLoading(false) }
+      const colors = await generatePalette(aiPrompt)
+      if (colors?.length >= 5) {
+        setPalette(colors.slice(0, 5))
+        setBaseColor(colors[0])
+        setHexInput(colors[0])
+        setShowAI(false)
+        setAiPrompt('')
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setAiLoading(false)
+    }
   }
 
   const [h, s, l] = hexToHsl(baseColor)
@@ -236,7 +245,7 @@ export default function ColorPalette() {
                 <div style={{ fontSize: '10px', color: t.textFaint, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: mono }}>{user.email || ''}</div>
               </div>
               <button onClick={logout} style={{ background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '5px', color: t.textMuted, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             </div>
           ) : (

@@ -70,12 +70,12 @@ export default function RegexTester() {
     setAiLoading(true); setAiOutput('')
     try {
       if (mode === 'explain') {
-        const res = await explainRegex(pattern, flags)
-        setAiOutput(res.data.explanation); setAiMode('explain')
+        const explanation = await explainRegex(pattern, flags)
+        setAiOutput(explanation); setAiMode('explain')
       } else {
-        const res = await generateRegex(aiPrompt)
-        setPattern(res.data.pattern); setFlags(res.data.flags || 'g')
-        setAiOutput(res.data.explanation); setAiMode('explain'); setAiPrompt('')
+        const result = await generateRegex(aiPrompt)
+        setPattern(result.pattern); setFlags(result.flags || 'g')
+        setAiOutput(result.explanation); setAiMode('explain'); setAiPrompt('')
       }
     } catch (err) {
       setAiOutput('Error: ' + (err.response?.data?.error || err.message))
